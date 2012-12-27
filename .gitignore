@@ -1,0 +1,6 @@
+mapfileparser.tab.c
+mapfileparser.tab.h
+mapfile.yy.c
+bin/*
+maps/*
+parser/*
