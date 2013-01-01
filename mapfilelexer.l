@@ -1,10 +1,14 @@
 %{
 
 int lineNumber = 0;
-
+#include <string.h>
 #include "mapfileparser.tab.h"
 
-#define setToken(token) yylval.str = strdup(yytext)	;return(token)
+/* *** if this is changed***
+remember to also update the function to return a string */
+#define debugPrint(str) printf("-->\"%s\"\n",str)
+#define setToken(token) printf("-->%s\n",yytext);yylval.str = 0;return(token)
+#define setTokenAndString(token) debugPrint(yytext);yylval.str = strdup(yytext);return(token)
 
 YYSTYPE yylval;
 
@@ -197,99 +201,115 @@ width                                 { setToken(WIDTH); }
 wkt                                   { setToken(WKT); }
 wrap                                  { setToken(WRAP); }
 
-annotation                            { setToken(MS_LAYER_ANNOTATION); }
-auto                                  { setToken(MS_AUTO); }
-bevel                                 { setToken(MS_CJC_BEVEL); }
-bitmap                                { setToken(MS_BITMAP); }
-butt                                  { setToken(MS_CJC_BUTT); }
-cartoline                             { setToken(MS_SYMBOL_CARTOLINE); }
-cc                                    { setToken(MS_CC); }
-center                                { setToken(MS_ALIGN_CENTER); }
-chart                                 { setToken(MS_LAYER_CHART); }
-circle                                { setToken(MS_LAYER_CIRCLE); }
-cl                                    { setToken(MS_CL); }
-cr                                    { setToken(MS_CR); }
-csv                                   { setToken(MS_DB_CSV); }
-mysql                                 { setToken(MS_DB_MYSQL); }
-postgresql                            { setToken(MS_DB_POSTGRES); }
-default                               { setToken(MS_DEFAULT); }
-dd                                    { setToken(MS_DD); }
-ellipse                               { setToken(MS_SYMBOL_ELLIPSE); }
-embed                                 { setToken(MS_EMBED); }
-false                                 { setToken(MS_FALSE); }
-feet                                  { setToken(MS_FEET); }
-follow                                { setToken(MS_FOLLOW); }
-giant                                 { setToken(MS_GIANT); }
-hatch                                 { setToken(MS_SYMBOL_HATCH); }
-hilite                                { setToken(MS_HILITE); }
-inches                                { setToken(MS_INCHES); }
-kilometers                            { setToken(MS_KILOMETERS); }
-large                                 { setToken(MS_LARGE); }
-lc                                    { setToken(MS_LC); }
-left                                  { setToken(MS_ALIGN_LEFT); }
-line                                  { setToken(MS_LAYER_LINE); }
-ll                                    { setToken(MS_LL); }
-lr                                    { setToken(MS_LR); }
-medium                                { setToken(MS_MEDIUM); }
-meters                                { setToken(MS_METERS); }
-nauticalmiles                         { setToken(MS_NAUTICALMILES); }
-miles                                 { setToken(MS_MILES); }
-miter                                 { setToken(MS_CJC_MITER); }
-multiple                              { setToken(MS_MULTIPLE); }
-none                                  { setToken(MS_CJC_NONE); }
-normal                                { setToken(MS_NORMAL); }
-off                                   { setToken(MS_OFF); }
-ogr                                   { setToken(MS_OGR); }
-on                                    { setToken(MS_ON); }
-one-to-one                            { setToken(MS_JOIN_ONE_TO_ONE); }
-one-to-many                           { setToken(MS_JOIN_ONE_TO_MANY); }
-oraclespatial                         { setToken(MS_ORACLESPATIAL); }
-percentages                           { setToken(MS_PERCENTAGES); }
-pixmap                                { setToken(MS_SYMBOL_PIXMAP); }
-pixels                                { setToken(MS_PIXELS); }
-point                                 { setToken(MS_LAYER_POINT); }
-polygon                               { setToken(MS_LAYER_POLYGON); }
-postgis                               { setToken(MS_POSTGIS); }
-mygis                                 { setToken(MS_MYGIS); }
-plugin                                { setToken(MS_PLUGIN); }
-query                                 { setToken(MS_LAYER_QUERY); }
-raster                                { setToken(MS_LAYER_RASTER); }
-right                                 { setToken(MS_ALIGN_RIGHT); }
-round                                 { setToken(MS_CJC_ROUND); }
-sde                                   { setToken(MS_SDE); }
-selected                              { setToken(MS_SELECTED); }
-simple                                { setToken(MS_SYMBOL_SIMPLE); }
-single                                { setToken(MS_SINGLE); }
-small                                 { setToken(MS_SMALL); }
-square                                { setToken(MS_CJC_SQUARE); }
-tiny                                  { setToken(MS_TINY); }
-triangle                              { setToken(MS_CJC_TRIANGLE); }
-true                                  { setToken(MS_TRUE); }
-truetype                              { setToken(MS_TRUETYPE); }
-uc                                    { setToken(MS_UC); }
-ul                                    { setToken(MS_UL); }
-ur                                    { setToken(MS_UR); }
-vector                                { setToken(MS_SYMBOL_VECTOR); }
-wfs                                   { setToken(MS_WFS); }
-wms                                   { setToken(MS_WMS); }
-alpha                                 { setToken(MS_GD_ALPHA); }
+annotation                            { setTokenAndString(MS_LAYER_ANNOTATION); }
+auto                                  { setTokenAndString(MS_AUTO); }
+bevel                                 { setTokenAndString(MS_CJC_BEVEL); }
+bitmap                                { setTokenAndString(MS_BITMAP); }
+butt                                  { setTokenAndString(MS_CJC_BUTT); }
+cartoline                             { setTokenAndString(MS_SYMBOL_CARTOLINE); }
+cc                                    { setTokenAndString(MS_CC); }
+center                                { setTokenAndString(MS_ALIGN_CENTER); }
+chart                                 { setTokenAndString(MS_LAYER_CHART); }
+circle                                { setTokenAndString(MS_LAYER_CIRCLE); }
+cl                                    { setTokenAndString(MS_CL); }
+cr                                    { setTokenAndString(MS_CR); }
+csv                                   { setTokenAndString(MS_DB_CSV); }
+mysql                                 { setTokenAndString(MS_DB_MYSQL); }
+postgresql                            { setTokenAndString(MS_DB_POSTGRES); }
+default                               { setTokenAndString(MS_DEFAULT); }
+dd                                    { setTokenAndString(MS_DD); }
+ellipse                               { setTokenAndString(MS_SYMBOL_ELLIPSE); }
+embed                                 { setTokenAndString(MS_EMBED); }
+false                                 { setTokenAndString(MS_FALSE); }
+feet                                  { setTokenAndString(MS_FEET); }
+follow                                { setTokenAndString(MS_FOLLOW); }
+giant                                 { setTokenAndString(MS_GIANT); }
+hatch                                 { setTokenAndString(MS_SYMBOL_HATCH); }
+hilite                                { setTokenAndString(MS_HILITE); }
+inches                                { setTokenAndString(MS_INCHES); }
+kilometers                            { setTokenAndString(MS_KILOMETERS); }
+large                                 { setTokenAndString(MS_LARGE); }
+lc                                    { setTokenAndString(MS_LC); }
+left                                  { setTokenAndString(MS_ALIGN_LEFT); }
+line                                  { setTokenAndString(MS_LAYER_LINE); }
+ll                                    { setTokenAndString(MS_LL); }
+lr                                    { setTokenAndString(MS_LR); }
+medium                                { setTokenAndString(MS_MEDIUM); }
+meters                                { setTokenAndString(MS_METERS); }
+nauticalmiles                         { setTokenAndString(MS_NAUTICALMILES); }
+miles                                 { setTokenAndString(MS_MILES); }
+miter                                 { setTokenAndString(MS_CJC_MITER); }
+multiple                              { setTokenAndString(MS_MULTIPLE); }
+none                                  { setTokenAndString(MS_CJC_NONE); }
+normal                                { setTokenAndString(MS_NORMAL); }
+off                                   { setTokenAndString(MS_OFF); }
+ogr                                   { setTokenAndString(MS_OGR); }
+on                                    { setTokenAndString(MS_ON); }
+one-to-one                            { setTokenAndString(MS_JOIN_ONE_TO_ONE); }
+one-to-many                           { setTokenAndString(MS_JOIN_ONE_TO_MANY); }
+oraclespatial                         { setTokenAndString(MS_ORACLESPATIAL); }
+percentages                           { setTokenAndString(MS_PERCENTAGES); }
+pixmap                                { setTokenAndString(MS_SYMBOL_PIXMAP); }
+pixels                                { setTokenAndString(MS_PIXELS); }
+point                                 { setTokenAndString(MS_LAYER_POINT); }
+polygon                               { setTokenAndString(MS_LAYER_POLYGON); }
+postgis                               { setTokenAndString(MS_POSTGIS); }
+mygis                                 { setTokenAndString(MS_MYGIS); }
+plugin                                { setTokenAndString(MS_PLUGIN); }
+query                                 { setTokenAndString(MS_LAYER_QUERY); }
+raster                                { setTokenAndString(MS_LAYER_RASTER); }
+right                                 { setTokenAndString(MS_ALIGN_RIGHT); }
+round                                 { setTokenAndString(MS_CJC_ROUND); }
+sde                                   { setTokenAndString(MS_SDE); }
+selected                              { setTokenAndString(MS_SELECTED); }
+simple                                { setTokenAndString(MS_SYMBOL_SIMPLE); }
+single                                { setTokenAndString(MS_SINGLE); }
+small                                 { setTokenAndString(MS_SMALL); }
+square                                { setTokenAndString(MS_CJC_SQUARE); }
+tiny                                  { setTokenAndString(MS_TINY); }
+triangle                              { setTokenAndString(MS_CJC_TRIANGLE); }
+true                                  { setTokenAndString(MS_TRUE); }
+truetype                              { setTokenAndString(MS_TRUETYPE); }
+uc                                    { setTokenAndString(MS_UC); }
+ul                                    { setTokenAndString(MS_UL); }
+ur                                    { setTokenAndString(MS_UR); }
+vector                                { setTokenAndString(MS_SYMBOL_VECTOR); }
+wfs                                   { setTokenAndString(MS_WFS); }
+wms                                   { setTokenAndString(MS_WMS); }
+alpha                                 { setTokenAndString(MS_GD_ALPHA); }
 
-\[.*\]                                { setToken(MS_BINDING); }
+\[.*\]                                { setTokenAndString(MS_BINDING); }
 
 -?[0-9]+|-?[0-9]+\.[0-9]*|-?\.[0-9]*|-?[0-9]+[eE][+-]?[0-9]+|-?[0-9]+\.[0-9]*[eE][+-]?[0-9]+|-?\.[0-9]*[eE][+-]?[0-9]+ {
-                                        setToken(MS_NUMBER); }
+                                        setTokenAndString(MS_NUMBER); }
 
-\/[^\/]*\/i                           { setToken(MS_IREGEX); }
+\/[^\/]*\/i                           { setTokenAndString(MS_IREGEX); }
 
-\/[^\/]*\/                            { setToken(MS_REGEX); }
+\/[^\/]*\/                            { setTokenAndString(MS_REGEX); }
 
-\(.*\)                                { setToken(MS_EXPRESSION); }
+\(.*\)                                { setTokenAndString(MS_EXPRESSION); }
 
-\"[^\"]*\"i|\'[^\']*\'i               { setToken(MS_ISTRING); }
+\"[^\"]*\"i|\'[^\']*\'i               { 
+                                        int len = strlen(yytext) - 2; // remove quotes and i but add one for the null
+										char *strippedString = (char*) malloc(len);
+										memcpy(strippedString,yytext+1,len-1);
+										strippedString[len-1] = '\0';
+										yylval.str = strippedString;
+										debugPrint(strippedString);
+										return MS_ISTRING;
+									   }
 
-\"[^\"]*\"|\'[^\']*\'                 { setToken(MS_STRING); }
+\"[^\"]*\"|\'[^\']*\'                 { 
+                                        int len = strlen(yytext) - 1; // remove quotes but add one for the null
+										char *strippedString = (char*) malloc(len);
+										memcpy(strippedString,yytext+1,len-1);
+										strippedString[len-1] = '\0';
+										debugPrint(strippedString);
+										yylval.str = strippedString;
+										return MS_STRING; 
+									  }
 
-[a-z/\.][a-z0-9/\._\-\=]*             { setToken(MS_STRING); }
+[a-z/\.][a-z0-9/\._\-\=]*             { setTokenAndString(MS_STRING); }
 
 \n                                    { lineNumber++; }
 

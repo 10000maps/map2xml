@@ -20,7 +20,7 @@ void XmlNode_setName(XmlNode *this, const char *name){
 }
 
 void XmlNode_setTextContent(XmlNode *this, const char *textContent){
-	this->textContent = getCopy(textContent);
+	this->textContent = strdup(textContent);
 }
 
 void XmlNode_print(XmlNode *this){
@@ -40,10 +40,11 @@ void XmlNode_print_pad(XmlNode *this, const char *pad){
 		printf(" %s=\"%s\"",this->attributes[i]->name,this->attributes[i]->value);
 	}
 	if(
-		strlen(this->textContent) > 0 ||
+		this->textContent != 0 ||
 		this->childrenCount > 0
 	){
-		printf(">%s",this->textContent);
+		printf(">");
+		if(this->textContent != 0)printf("%s",this->textContent);
 		for(i = 0; i < this->childrenCount; i++){
 			XmlNode_print_pad(this->children[i],childPad);
 		}
@@ -76,9 +77,10 @@ void XmlNode_destory(XmlNode *this){
 }
 
 void XmlNode_addAttribute(XmlNode *this, const char *name, const char *value){
-	
 	if(this->attributeCount >= XML_NODE_ATTRIBUTE_SIZE-1){
 		fprintf(stderr, "Attribute Limit exceeded!\n");
+		printf("about to print . . . \n");
+		XmlNode_print(this);
 		exit(1);
 	};
 	
@@ -103,11 +105,14 @@ void XmlNode_addChild(XmlNode *this, XmlNode *child){
 }
 
 void XmlNode_merge(XmlNode *this, XmlNode *target){
+	if (target == 0) return;
 	int i;
 	for( i = 0; i < target->attributeCount; i++){
-	
 		if(this->attributeCount >= XML_NODE_ATTRIBUTE_SIZE-1){
-			fprintf(stderr, "Attribute Limit exceeded!\n");
+			fprintf(stderr, "Attribute Limit exceeded! on a merge\n");
+			printf("%d\n",this->attributeCount);
+			printf("about to print\n");
+			XmlNode_print(this);
 			exit(1);
 		};
 	
@@ -129,7 +134,7 @@ void XmlNode_merge(XmlNode *this, XmlNode *target){
 }
 
 char* getCopy(const char *str){
-	char *new = (char*) malloc(strlen(str));
+	char *new = (char*) malloc(strlen(str)+1);
 	strcpy(new,str);
 	return new;
 }

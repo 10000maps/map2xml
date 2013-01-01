@@ -4,7 +4,7 @@
 
 
 bin/mapfileparser: mapfileparser.tab.c mapfile.yy.c mapfilexml.c
-	gcc -Wfatal-errors mapfile.yy.c mapfileparser.tab.c mapfilexml.c -o$@
+	gcc -g -Wfatal-errors mapfile.yy.c mapfileparser.tab.c mapfilexml.c -o$@
 	
 mapfileparser.tab.c: mapfileparser.y
 	bison -d mapfileparser.y
@@ -14,7 +14,7 @@ mapfile.yy.c: mapfilelexer.l
 
 
 test: bin/mapfileparser
-	bin/mapfileparser < maps/test1.map
+	valgrind bin/mapfileparser < maps/test.map
 	
 clean:
 	rm -f mapfileparser.tab.c

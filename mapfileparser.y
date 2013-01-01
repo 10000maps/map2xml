@@ -2,25 +2,39 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <stdlib.h>
 #include "mapfilexml.h"
 
+
+int yylex();
+int yyparse();
+char *yytext;
+int line_number;
 
 XmlNode* wrapNode(XmlNode *child);
 XmlNode* mergeNodes(XmlNode *node1, XmlNode *node2);
 XmlNode* nameNode(const char *name, XmlNode *node);
-XmlNode* addChildNode(const char *name, const char *content)
+XmlNode* createSimpleNode(const char *name, const char *content);
+XmlNode* addColorOptionNode(const char *rgbName, const char *attributeName, XmlNode* node);
+XmlNode* nameNode(const char *name, XmlNode* node);
+XmlNode* addAttribute(char const *name, char const *value);
+XmlNode* newNode(const char *name);
+XmlNode* configNode = 0;
+XmlNode* addToMapConfig(const char *name, const char *value);
+char *concatStrings(char *str1, char *str2);
+char *createExtentString(char *str1, char *str2, char *str3, char *str4);
+XmlNode *createItemNode(const char *name, const char *value);
+XmlNode *createSizeNode(char *xstr, char *ystr);
+XmlNode *createRGBNode(char *rstr, char *gstr, char *bstr);
+XmlNode *createNodeWithTextContent(char *content);
+void yyerror(const char *s);
 /*
 
 //using namespace std;
 #define NODE_BIT 0
 #define NODE 1
 // stuff from flex that bison needs to know about:
-extern int yylex();
-extern int yyparse();
-extern FILE *yyin;
-extern char *yytext;
-extern int line_number;
+
  
 void yyerror(const char *s);
 
@@ -28,8 +42,8 @@ vector<XmlNode*> nodes;
 vector<XmlNodeBit*> nodeBits;
 
 int addAttribute(char const *name, char const *value);
-int addChildNode(const char *name, const char *content);
-int addChildNode(const char *name, int index);
+int createSimpleNode(const char *name, const char *content);
+int createSimpleNode(const char *name, int index);
 int createNode(const char *name, int bitIndex);
 int addNodeBitToNode(int nodeIndex, int nodeBitIndex);
 int wrapNodeWithBit(int nodeIndex);
@@ -85,20 +99,20 @@ char tempString[LARGE_STRING_SIZE];*/
   grid_stmt join_block join_stmts join_stmt label_block label_stmts label_stmt layer_block 
   layer_stmts layer_stmt leader_block leader_stmts leader_stmt legend_block legend_stmts 
   legend_stmt map_block map_stmts map_stmt metadata_block outputformat_block outputformat_stmts 
-  outputformat_stmt points_block point_stmt point_stmts projection_block proj_list querymap_block 
+  outputformat_stmt points_block point_stmt point_stmts projection_block querymap_block 
   querymap_stmts querymap_stmt reference_block reference_stmts reference_stmt scalebar_block 
   scalebar_stmts scalebar_stmt style_block style_stmts style_stmt symbol_block symbol_stmts 
-  symbol_stmt validation_block web_block web_stmts web_stmt str_pairs str_pair number_list x_y rgb 
-  color_opt expression_opt;
+  symbol_stmt validation_block web_block web_stmts web_stmt str_pairs str_pair x_y rgb 
+  color_opt;
 
-%type <str> debug_opts on_off units_opt symbol_type_opt querymap_style_opt extent_opt num_str
+%type <str> expression_opt debug_opts on_off units_opt symbol_type_opt querymap_style_opt extent_opt num_str
   position_opt true_false size_opt transparency_opt layer_type_opt legend_status_opt status_opt 
   transform_opt connectiontype_opt type_opt linejoin_opt linecap_opt style_angle_opt align_opt 
-  angle_opt str_attr number_auto num_str_attr num_attr ;
+  angle_opt str_attr number_auto num_str_attr num_attr proj_list number_list;
 
 %%
 
-mapfile : map_block                                           { XmlNode_print($1); }
+mapfile : map_block                                           { printf("reducing to mapfile\n");XmlNode_print($1); }
         | layer_set                                           { XmlNode_print($1); }
         | symbol_set                                          { XmlNode_print($1); }
         ;
@@ -133,28 +147,28 @@ class_block : CLASS class_stmts END                           { $$ = wrapNode($2
 class_stmts : class_stmts class_stmt                          { $$ = mergeNodes($1,$2); }
             | class_stmt                                      { $$ = nameNode("Class",$1); }
             ;
-class_stmt : BACKGROUNDCOLOR rgb                             { $$ = 0; }
-           | COLOR rgb                                       { $$ = 0; }
-           | DEBUG on_off                                    { $$ = 0; }
+class_stmt : BACKGROUNDCOLOR rgb                             { $$ = wrapNode(nameNode("backgroundColor",$2)); }
+           | COLOR rgb                                       { $$ = wrapNode(nameNode("backgroundColor",$2)); }
+           | DEBUG on_off                                    { $$ = createSimpleNode("debug",$2); }
            | EXPRESSION expression_opt                       { $$ = 0; }
-           | GROUP MS_STRING                                 { $$ = 0; }
-           | KEYIMAGE MS_STRING                              { $$ = 0; }
-           | label_block                                     { $$ = 0; }
-           | leader_block                                    { $$ = 0; }
-           | MAXSCALEDENOM MS_NUMBER                         { $$ = 0; }
-           | MAXSIZE MS_NUMBER                               { $$ = 0; }
-           | metadata_block                                  { $$ = 0; }
-           | MINSCALEDENOM MS_NUMBER                         { $$ = 0; }
-           | MINSIZE MS_NUMBER                               { $$ = 0; }
-           | NAME MS_STRING                                  { $$ = 0; }
+           | GROUP MS_STRING                                 { $$ = createSimpleNode("group",$2); }
+           | KEYIMAGE MS_STRING                              { $$ = createSimpleNode("keyImage",$2); }
+           | label_block                                     { $$ = $1; }
+           | leader_block                                    { $$ = $1; }
+           | MAXSCALEDENOM MS_NUMBER                         { $$ = createSimpleNode("maxScaleDenom",$2); }
+           | MAXSIZE MS_NUMBER                               { $$ = createSimpleNode("maxSize",$2); }
+           | metadata_block                                  { $$ = $1; }
+           | MINSCALEDENOM MS_NUMBER                         { $$ = createSimpleNode("minScaleDenom",$2); }
+           | MINSIZE MS_NUMBER                               { $$ = createSimpleNode("minSize",$2); }
+           | NAME MS_STRING                                  { $$ = addAttribute("name",$2); }
            | OUTLINECOLOR rgb                                { $$ = 0; }
-           | SIZE MS_NUMBER                                  { $$ = 0; }
-           | STATUS on_off                                   { $$ = 0; }
-           | style_block                                     { $$ = 0; }
-           | SYMBOL num_str                                  { $$ = 0; }
-           | TEMPLATE MS_STRING                              { $$ = 0; }
+           | SIZE MS_NUMBER                                  { $$ = createSimpleNode("size",$2); }
+           | STATUS on_off                                   { $$ = addAttribute("status",$2); }
+           | style_block                                     { $$ = $1; }
+           | SYMBOL num_str                                  { $$ = createSimpleNode("symbol",$2); }
+           | TEMPLATE MS_STRING                              { $$ = createSimpleNode("template",$2); }
            | TEXT expression_opt                             { $$ = 0; }
-           | validation_block                                { $$ = 0; }
+           | validation_block                                { $$ = $1; }
            ;
 
 cluster_block : CLUSTER cluster_stmts END                     { $$ = wrapNode($2); }
@@ -162,9 +176,9 @@ cluster_block : CLUSTER cluster_stmts END                     { $$ = wrapNode($2
 cluster_stmts : cluster_stmts cluster_stmt                    { $$ =   mergeNodes($1,$2); }
               | cluster_stmt                                  { $$ = nameNode("Cluster",$1); }
               ;
-cluster_stmt : MAXDISTANCE MS_NUMBER                         { $$ = 0; }
-             | REGION MS_STRING                              { $$ = 0; }
-             | BUFFER MS_NUMBER                              { $$ = 0; }
+cluster_stmt : MAXDISTANCE MS_NUMBER                         { $$ = createSimpleNode("maxDistance",$2); }
+             | REGION MS_STRING                              { $$ = createSimpleNode("region",$2); }
+             | BUFFER MS_NUMBER                              { $$ = createSimpleNode("buffer",$2); }
              | GROUP expression_opt                          { $$ = 0; }
              | FILTER expression_opt                         { $$ = 0; }
              ;
@@ -174,10 +188,10 @@ feature_block : FEATURE feature_stmts END                     { $$ = wrapNode($2
 feature_stmts : feature_stmts feature_stmt                    { $$ =   mergeNodes($1,$2); }
               | feature_stmt                                  { $$ = nameNode("Feature",$1); }
               ;
-feature_stmt : points_block                                  { $$ = 0; }
-             | ITEMS MS_STRING                               { $$ = 0; }
-             | TEXT MS_STRING                                { $$ = 0; }
-             | WKT MS_STRING                                 { $$ = 0; }
+feature_stmt : points_block                                  { $$ = $1; }
+             | ITEMS MS_STRING                               { $$ = createSimpleNode("items",$2); }
+             | TEXT MS_STRING                                { $$ = createSimpleNode("text",$2); }
+             | WKT MS_STRING                                 { $$ = createSimpleNode("wkt",$2); }
              ;
 
 grid_block : GRID grid_stmts END                             { $$ = wrapNode($2); }
@@ -185,13 +199,13 @@ grid_block : GRID grid_stmts END                             { $$ = wrapNode($2)
 grid_stmts : grid_stmts grid_stmt                            { $$ =   mergeNodes($1,$2); }
            | grid_stmt                                       { $$ = nameNode("Grid",$1); }
            ;
-grid_stmt : LABELFORMAT MS_STRING                             { $$ = 0; }
-          | MINARCS MS_NUMBER                                 { $$ = 0; }
-          | MAXARCS MS_NUMBER                                 { $$ = 0; }
-          | MININTERVAL MS_NUMBER                             { $$ = 0; }
-          | MAXINTERVAL MS_NUMBER                             { $$ = 0; }
-          | MINSUBDIVIDE MS_NUMBER                            { $$ = 0; }
-          | MAXSUBDIVIDE MS_NUMBER                            { $$ = 0; }
+grid_stmt : LABELFORMAT MS_STRING                             { $$ = createSimpleNode("labelFont",$2); }
+          | MINARCS MS_NUMBER                                 { $$ = createSimpleNode("minArcs",$2); }
+          | MAXARCS MS_NUMBER                                 { $$ = createSimpleNode("maxArcs",$2); }
+          | MININTERVAL MS_NUMBER                             { $$ = createSimpleNode("minInterval",$2); }
+          | MAXINTERVAL MS_NUMBER                             { $$ = createSimpleNode("maxInterval",$2); }
+          | MINSUBDIVIDE MS_NUMBER                            { $$ = createSimpleNode("minSubdivide",$2); }
+          | MAXSUBDIVIDE MS_NUMBER                            { $$ = createSimpleNode("maxSubdivide",$2); }
           ;
 
 
@@ -200,16 +214,16 @@ join_block : JOIN join_stmts END                             { $$ = wrapNode($2)
 join_stmts : join_stmts join_stmt                            { $$ =   mergeNodes($1,$2); }
            | join_stmt                                       { $$ = nameNode("Join",$1); }
            ;
-join_stmt : CONNECTION MS_STRING                              { $$ = 0; }
-          | CONNECTIONTYPE MS_STRING                          { $$ = 0; }
-          | FOOTER MS_STRING                                  { $$ = 0; }
-          | FROM MS_STRING                                    { $$ = 0; }
-          | HEADER MS_STRING                                  { $$ = 0; }
-          | NAME MS_STRING                                    { $$ = 0; }
-          | TABLE MS_STRING                                   { $$ = 0; }
-          | TEMPLATE MS_STRING                                { $$ = 0; }
-          | TO MS_STRING                                      { $$ = 0; }
-          | TYPE  MS_STRING                                   { $$ = 0; }
+join_stmt : CONNECTION MS_STRING                              { $$ = createSimpleNode("connection",$2); }
+          | CONNECTIONTYPE MS_STRING                          { $$ = createSimpleNode("connectionType",$2); }
+          | FOOTER MS_STRING                                  { $$ = createSimpleNode("footer",$2); }
+          | FROM MS_STRING                                    { $$ = createSimpleNode("from",$2); }
+          | HEADER MS_STRING                                  { $$ = createSimpleNode("header",$2); }
+          | NAME MS_STRING                                    { $$ = createSimpleNode("name",$2); }
+          | TABLE MS_STRING                                   { $$ = createSimpleNode("table",$2); }
+          | TEMPLATE MS_STRING                                { $$ = createSimpleNode("template",$2); }
+          | TO MS_STRING                                      { $$ = createSimpleNode("to",$2); }
+          | TYPE  MS_STRING                                   { $$ = createSimpleNode("type",$2); }
           ;
 
 label_block : LABEL label_stmts END                           { $$ = wrapNode($2); }
@@ -217,37 +231,40 @@ label_block : LABEL label_stmts END                           { $$ = wrapNode($2
 label_stmts : label_stmts label_stmt                          { $$ =   mergeNodes($1,$2); }
             | label_stmt                                      { $$ = nameNode("Label",$1); }
             ;
-label_stmt : ALIGN align_opt                                 { $$ = addChildNode("align",$2); }
-           | ANGLE angle_opt                                 { $$ = addChildNode("angle",$2); }
-           | ANTIALIAS true_false                            { $$ = addChildNode("antialias",$2); }
-           | BUFFER MS_NUMBER                                { $$ = addChildNode("buffer",$2); }
+label_stmt : ALIGN align_opt                                 { $$ = createSimpleNode("align",$2); }
+           | ANGLE angle_opt                                 { $$ = createSimpleNode("angle",$2); }
+           | ANTIALIAS true_false                            { $$ = createSimpleNode("antialias",$2); }
+		   | BACKGROUNDCOLOR rgb                             { $$ = wrapNode(nameNode("backgroundColor",$2)); }
+		   | BACKGROUNDSHADOWCOLOR rgb                       { $$ = wrapNode(nameNode("backgroundShadowColor",$2)); }
+		   | BACKGROUNDSHADOWSIZE x_y                        { $$ = wrapNode(nameNode("backgroundShadowSize",$2)); }		   
+           | BUFFER MS_NUMBER                                { $$ = createSimpleNode("buffer",$2); }
            | COLOR color_opt                                 { $$ = addColorOptionNode("color","colorAttribute",$2); }
-           | ENCODING MS_STRING                              { $$ = addChildNode("encoding",$2); }
+           | ENCODING MS_STRING                              { $$ = createSimpleNode("encoding",$2); }
            | EXPRESSION expression_opt                       { $$ = 0; }
-           | FONT str_attr                                   { $$ = addChildNode("font",$2); }
-           | FORCE true_false                                { $$ = addChildNode("force",$2); }
-           | MAXLENGTH MS_NUMBER                             { $$ = addChildNode("maxLength",$2); }
-           | MAXOVERLAPANGLE MS_NUMBER                       { $$ = addChildNode("maxOverlapAngle",$2); }
-           | MAXSCALEDENOM MS_NUMBER                         { $$ = addChildNode("maxScaleDenom",$2); }
-           | MAXSIZE MS_NUMBER                               { $$ = addChildNode("maxSize",$2); }
-           | MINDISTANCE MS_NUMBER                           { $$ = addChildNode("minDistance",$2); }
-           | MINFEATURESIZE number_auto                      { $$ = addChildNode("minFeatureSize",$2); }
-           | MINSCALEDENOM MS_NUMBER                         { $$ = addChildNode("minScaleDenom",$2); }
-           | MINSIZE MS_NUMBER                               { $$ = addChildNode("minSize",$2); }
-           | OFFSET x_y                                      { $$ = addChildNode("offset",$2); }
+           | FONT str_attr                                   { $$ = createSimpleNode("font",$2); }
+           | FORCE true_false                                { $$ = createSimpleNode("force",$2); }
+           | MAXLENGTH MS_NUMBER                             { $$ = createSimpleNode("maxLength",$2); }
+           | MAXOVERLAPANGLE MS_NUMBER                       { $$ = createSimpleNode("maxOverlapAngle",$2); }
+           | MAXSCALEDENOM MS_NUMBER                         { $$ = createSimpleNode("maxScaleDenom",$2); }
+           | MAXSIZE MS_NUMBER                               { $$ = createSimpleNode("maxSize",$2); }
+           | MINDISTANCE MS_NUMBER                           { $$ = createSimpleNode("minDistance",$2); }
+           | MINFEATURESIZE number_auto                      { $$ = createSimpleNode("minFeatureSize",$2); }
+           | MINSCALEDENOM MS_NUMBER                         { $$ = createSimpleNode("minScaleDenom",$2); }
+           | MINSIZE MS_NUMBER                               { $$ = createSimpleNode("minSize",$2); }
+           | OFFSET x_y                                      { $$ = wrapNode(nameNode("offset",$2)); }
            | OUTLINECOLOR color_opt                          { $$ = addColorOptionNode("outlineColor","outlineColorAttribute",$2); }
-           | OUTLINEWIDTH MS_NUMBER                          { $$ = addChildNode("outlineWidth",$2); }
-           | PARTIALS true_false                             { $$ = addChildNode("partials",$2); }
-           | POSITION position_opt                           { $$ = addChildNode("position",$2); }
-           | PRIORITY   num_str_attr                          { $$ = addChildNode("priority",$2); }
-           | REPEATDISTANCE MS_NUMBER                        { $$ = addChildNode("repeatDistance",$2); }
-           | SHADOWCOLOR rgb                                 { $$ = addChildNode("shadowColor",$2); }
-           | SHADOWSIZE x_y                                  { $$ = addChildNode("shadowSize",$2); }
-           | SIZE size_opt                                   { $$ = addChildNode("size",$2); }
+           | OUTLINEWIDTH MS_NUMBER                          { $$ = createSimpleNode("outlineWidth",$2); }
+           | PARTIALS true_false                             { $$ = createSimpleNode("partials",$2); }
+           | POSITION position_opt                           { $$ = createSimpleNode("position",$2); }
+           | PRIORITY   num_str_attr                         { $$ = createSimpleNode("priority",$2); }
+           | REPEATDISTANCE MS_NUMBER                        { $$ = createSimpleNode("repeatDistance",$2); }
+           | SHADOWCOLOR rgb                                 { $$ = wrapNode(nameNode("shadowColor",$2)); }
+           | SHADOWSIZE x_y                                  { $$ = wrapNode(nameNode("shadowSize",$2)); }
+           | SIZE size_opt                                   { $$ = createSimpleNode("size",$2); }
            | style_block                                     { $$ = $1; }
            | TEXT expression_opt                             { $$ = 0; }
            | TYPE type_opt                                   { $$ = addAttribute("type",$2); }
-           | WRAP MS_STRING                                  { $$ = addChildNode("wrap",$2); }
+           | WRAP MS_STRING                                  { $$ = createSimpleNode("wrap",$2); }
            ;
 
 layer_block : LAYER layer_stmts END                           { $$ = wrapNode($2); }
@@ -256,62 +273,62 @@ layer_block : LAYER layer_stmts END                           { $$ = wrapNode($2
 layer_stmts : layer_stmts layer_stmt                          { $$ =   mergeNodes($1,$2); }
             | layer_stmt                                      { $$ = nameNode("Layer",$1); }
             ;
-layer_stmt : class_block                                     { $$ = 0; }
-           | CLASSGROUP MS_STRING                            { $$ = 0; }
-           | CLASSITEM MS_BINDING                            { $$ = 0; }
-           | CLASSITEM MS_STRING                             { $$ = 0; }
-           | cluster_block                                   { $$ = 0; }
-           | CONNECTION MS_STRING                            { $$ = 0; }
-           | CONNECTIONTYPE connectiontype_opt               { $$ = 0; }
-           | DATA MS_STRING                                  { $$ = 0; }
-           | DEBUG debug_opts                                { $$ = 0; }
-           | DUMP true_false                                 { $$ = 0; }
-           | EXTENT MS_NUMBER MS_NUMBER MS_NUMBER MS_NUMBER  { $$ = 0; }
-           | feature_block                                   { $$ = 0; }
+layer_stmt : class_block                                     { $$ = $1; }
+           | CLASSGROUP MS_STRING                            { $$ = createSimpleNode("classGroup",$2); }
+           | CLASSITEM MS_BINDING                            { $$ = createSimpleNode("classItem",$2); }
+           | CLASSITEM MS_STRING                             { $$ = createSimpleNode("classItem",$2); }
+           | cluster_block                                   { $$ = $1; }
+           | CONNECTION MS_STRING                            { $$ = createSimpleNode("connection",$2); }
+           | CONNECTIONTYPE connectiontype_opt               { $$ = createSimpleNode("connectionType",$2); }
+           | DATA MS_STRING                                  { $$ = createSimpleNode("data",$2); }
+           | DEBUG debug_opts                                { $$ = createSimpleNode("debug",$2); }
+           | DUMP true_false                                 { $$ = createSimpleNode("dump",$2); }
+           | EXTENT extent_opt                               { $$ = createSimpleNode("extent",$2); }
+           | feature_block                                   { $$ = $1; }
            | FILTER expression_opt                           { $$ = 0; }
-           | FILTERITEM MS_BINDING                           { $$ = 0; }
-           | FOOTER MS_STRING                                { $$ = 0; }
-           | grid_block                                      { $$ = 0; }
-           | GROUP MS_STRING                                 { $$ = 0; }
-           | HEADER MS_STRING                                { $$ = 0; }
-           | join_block                                      { $$ = 0; }
-           | LABELANGLEITEM MS_BINDING                       { $$ = 0; }
-           | LABELCACHE on_off                               { $$ = 0; }
-           | LABELITEM MS_BINDING                            { $$ = 0; }
-           | LABELITEM MS_STRING                             { $$ = 0; }
-           | LABELMAXSCALEDENOM MS_NUMBER                    { $$ = 0; }
-           | LABELMINSCALEDENOM MS_NUMBER                    { $$ = 0; }
+           | FILTERITEM str_attr                           { $$ = createSimpleNode("filterItem",$2); }
+           | FOOTER MS_STRING                                { $$ = createSimpleNode("footer",$2); }
+           | grid_block                                      { $$ = $1; }
+           | GROUP MS_STRING                                 { $$ = createSimpleNode("group",$2); }
+           | HEADER MS_STRING                                { $$ = createSimpleNode("header",$2); }
+           | join_block                                      { $$ = $1; }
+           | LABELANGLEITEM MS_BINDING                       { $$ = createSimpleNode("labelAngleItem",$2); }
+           | LABELCACHE on_off                               { $$ = createSimpleNode("labelCahce",$2); }
+           | LABELITEM MS_BINDING                            { $$ = createSimpleNode("labelItem",$2); }
+           | LABELITEM MS_STRING                             { $$ = createSimpleNode("labelItem",$2); }
+           | LABELMAXSCALEDENOM MS_NUMBER                    { $$ = createSimpleNode("labelMaxScaleDenom",$2); }
+           | LABELMINSCALEDENOM MS_NUMBER                    { $$ = createSimpleNode("labelMinScaleDenom",$2); }
            | LABELREQUIRES expression_opt                    { $$ = 0; }
-           | LABELSIZEITEM MS_BINDING                        { $$ = 0; }
-           | MASK MS_STRING                                  { $$ = 0; }
-           | MAXFEATURES MS_NUMBER                           { $$ = 0; }
-           | MAXGEOWIDTH MS_NUMBER                           { $$ = 0; }
-           | MAXSCALEDENOM MS_NUMBER                         { $$ = 0; }
-           | metadata_block                                  { $$ = 0; }
-           | MINGEOWIDTH MS_NUMBER                           { $$ = 0; }
-           | MINSCALEDENOM MS_NUMBER                         { $$ = 0; }
-           | NAME MS_STRING                                  { $$ = 0; }
+           | LABELSIZEITEM MS_BINDING                        { $$ = createSimpleNode("labelSizeItem",$2); }
+           | MASK MS_STRING                                  { $$ = createSimpleNode("mask",$2); }
+           | MAXFEATURES MS_NUMBER                           { $$ = createSimpleNode("maxFeatures",$2); }
+           | MAXGEOWIDTH MS_NUMBER                           { $$ = createSimpleNode("maxGeoWidth",$2); }
+           | MAXSCALEDENOM MS_NUMBER                         { $$ = createSimpleNode("maxScaleDenom",$2); }
+           | metadata_block                                  { $$ = $1; }
+           | MINGEOWIDTH MS_NUMBER                           { $$ = createSimpleNode("minGeoWidth",$2); }
+           | MINSCALEDENOM MS_NUMBER                         { $$ = createSimpleNode("minScaleDenom",$2); }
+           | NAME MS_STRING                                  { $$ = createSimpleNode("name",$2); }
            | OFFSITE rgb                                     { $$ = 0; }
-           | OPACITY num_str                                 { $$ = 0; }
-           | MS_PLUGIN MS_NUMBER                             { $$ = 0; }
-           | POSTLABELCACHE true_false                       { $$ = 0; }
-           | PROCESSING MS_STRING                            { $$ = 0; }
+           | OPACITY num_str                                 { $$ = createSimpleNode("opacity",$2); }
+           | MS_PLUGIN MS_NUMBER                             { $$ = createSimpleNode("plugin",$2); }
+           | POSTLABELCACHE true_false                       { $$ = createSimpleNode("postLabelCache",$2); }
+           | PROCESSING MS_STRING                            { $$ = createSimpleNode("processing",$2); }
            | projection_block                                { $$ = 0; }
            | REQUIRES expression_opt                         { $$ = 0; }
-           | SIZEUNITS units_opt                             { $$ = 0; }
+           | SIZEUNITS units_opt                             { $$ = createSimpleNode("sizeUnites",$2); }
            | STATUS status_opt                               { $$ = 0; }
-           | STYLEITEM str_attr                              { $$ = 0; }
-           | SYMBOLSCALEDENOM MS_NUMBER                      { $$ = 0; }
-           | TEMPLATE MS_STRING                              { $$ = 0; }
-           | TILEINDEX MS_STRING                             { $$ = 0; }
-           | TILEITEM MS_BINDING                             { $$ = 0; }
-           | TOLERANCE MS_NUMBER                             { $$ = 0; }
-           | TOLERANCEUNITS units_opt                        { $$ = 0; }
-           | TRANSPARENCY transparency_opt                   { $$ = 0; }
-           | TRANSFORM transform_opt                         { $$ = 0; }
-           | TYPE layer_type_opt                             { $$ = 0; }
-           | UNITS units_opt                                 { $$ = 0; }
-           | validation_block                                { $$ = 0; }
+           | STYLEITEM str_attr                              { $$ = createSimpleNode("styleItem",$2); }
+           | SYMBOLSCALEDENOM MS_NUMBER                      { $$ = createSimpleNode("symbolScaleDenom",$2); }
+           | TEMPLATE MS_STRING                              { $$ = createSimpleNode("template",$2); }
+           | TILEINDEX MS_STRING                             { $$ = createSimpleNode("tileIndex",$2); }
+           | TILEITEM MS_BINDING                             { $$ = createSimpleNode("tileItem",$2); }
+           | TOLERANCE MS_NUMBER                             { $$ = createSimpleNode("tolerance",$2); }
+           | TOLERANCEUNITS units_opt                        { $$ = createSimpleNode("toleranceUnits",$2); }
+           | TRANSPARENCY transparency_opt                   { $$ = createSimpleNode("transparency",$2); }
+           | TRANSFORM transform_opt                         { $$ = createSimpleNode("transform",$2); }
+           | TYPE layer_type_opt                             { $$ = createSimpleNode("type",$2); }
+           | UNITS units_opt                                 { $$ = createSimpleNode("units",$2); }
+           | validation_block                                { $$ = $1; }
            ;
 
 leader_block : LEADER leader_stmts END                       { $$ = wrapNode($2); }
@@ -319,9 +336,9 @@ leader_block : LEADER leader_stmts END                       { $$ = wrapNode($2)
 leader_stmts : leader_stmts leader_stmt                      { $$ =   mergeNodes($1,$2); }
              | leader_stmt                                   { $$ = nameNode("Leader",$1); }
              ;
-leader_stmt : GRIDSTEP MS_NUMBER                              { $$ = 0; }
-            | MAXDISTANCE MS_NUMBER                           { $$ = 0; }
-            | style_block                                     { $$ = 0; }
+leader_stmt : GRIDSTEP MS_NUMBER                              { $$ = createSimpleNode("gridStep",$2); }
+            | MAXDISTANCE MS_NUMBER                           { $$ = createSimpleNode("maxDistance",$2); }
+            | style_block                                     { $$ = $1; }
             ;
 
 
@@ -330,82 +347,62 @@ legend_block : LEGEND legend_stmts END                       { $$ = wrapNode($2)
 legend_stmts : legend_stmts legend_stmt                      { $$ =   mergeNodes($1,$2); }
              | legend_stmt                                   { $$ = nameNode("Legend",$1); }
              ;
-legend_stmt : IMAGECOLOR rgb                                  { $$ = addChildNode("imageColor",$2); }
-            | INTERLACE on_off                                { $$ = addChildNode("interlace",$2); }
-            | KEYSIZE x_y                                     { $$ = addChildNode("keySize",$2); }
-            | KEYSPACING x_y                                  { $$ = addChildNode("keySpacing",$2); }
+legend_stmt : IMAGECOLOR rgb                                  { $$ = wrapNode(nameNode("imageColor",$2)); }
+            | INTERLACE on_off                                { $$ = createSimpleNode("interlace",$2); }
+            | KEYSIZE x_y                                     { $$ = wrapNode(nameNode("keySize",$2)); }
+            | KEYSPACING x_y                                  { $$ = wrapNode(nameNode("keySpacing",$2)); }
             | label_block                                     { $$ = $1; }
-            | OUTLINECOLOR rgb                                { $$ = addChildNode("outlineColor",$2); }
-            | POSITION position_opt                           { $$ = addChildNode("position",$2); }
-            | POSTLABELCACHE true_false                       { $$ = addChildNode("postLabelCache",$2); }
+            | OUTLINECOLOR rgb                                { $$ = wrapNode(nameNode("outlineColor",$2)); }
+            | POSITION position_opt                           { $$ = createSimpleNode("position",$2); }
+            | POSTLABELCACHE true_false                       { $$ = createSimpleNode("postLabelCache",$2); }
             | STATUS legend_status_opt                        { $$ = addAttribute("status",$2); }
-            | TEMPLATE MS_STRING                              { $$ = addChildNode("template",$2); }
-            | TRANSPARENT on_off                              { $$ = addChildNode("transparent",$2); }
+            | TEMPLATE MS_STRING                              { $$ = createSimpleNode("template",$2); }
+            | TRANSPARENT on_off                              { $$ = createSimpleNode("transparent",$2); }
             ;
 
 map_block : MAP map_stmts END                                 { 
-                                                                $$ = $2; 
-                                                                XmlNode *node = nodes[$2];
-                                                                node->addAttribute(new XmlAttribute("xmlns","http://www.mapserver.org/mapserver"));
-                                                                node->addAttribute(new XmlAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance"));
-                                                                node->addAttribute(new XmlAttribute("xsi:schemaLocation","http://www.mapserver.org/mapserver ../mapfile.xsd"));
-                                                                node->addAttribute(new XmlAttribute("version","5.6.0"));
+                                                                printf("reducing to map block\n");
+																$$ = $2;
+																XmlNode_addAttribute($2,"xmlns","http://www.mapserver.org/mapserver");
+																XmlNode_addAttribute($2,"xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
+																XmlNode_addAttribute($2,"xsi:schemaLocation","http://www.mapserver.org/mapserver ../mapfile.xsd");
+																XmlNode_addAttribute($2,"version","5.6.0");
                                                               }
           ;
-map_stmts : map_stmts map_stmt                                { $$ =   mergeNodes($1,$2); }
+map_stmts : map_stmts map_stmt                                { $$ = mergeNodes($1,$2); }
           | map_stmt                                          { $$ = nameNode("Map",$1); }
           ;
-map_stmt : ANGLE MS_NUMBER                                    { $$ = addChildNode("angle",$2); }
-         | CONFIG MS_STRING MS_STRING                        { 
-                                                               XmlNode *cnode;
-                                                               if(configNodeIndex < 0){
-                                                                 cnode = new XmlNode("Config");
-                                                                 configNodeIndex = nodes.size();
-                                                                 nodes.push_back(cnode);
-                                                               } else {
-                                                                 cnode = nodes[configNodeIndex];
-                                                               }
-                                                               XmlNode *item = new XmlNode("item");
-                                                               item->addAttribute(new XmlAttribute("name",$2));
-                                                               item->setTextContent($3);
-                                                               XmlNodeBit *bit = new XmlNodeBit();
-                                                               bit->addChild(item);
-                                                               $$ = nodeBits.size();
-                                                               nodeBits.push_back(bit);
-                                                             }
-         | DATAPATTERN MS_REGEX                              { $$ = addChildNode("dataPattern",$2); }
-         | DEBUG debug_opts                                  { $$ = addChildNode("debug",$2); }
-         | DEFRESOLUTION MS_NUMBER                           { $$ = addChildNode("defResolution",$2); }
-         | EXTENT MS_NUMBER MS_NUMBER MS_NUMBER MS_NUMBER    { 
-                                                               char tmp[SMALL_STRING_SIZE];
-                                                               sprintf(tmp,"%s %s %s %s",$2,$3,$4,$5);
-                                                               $$ = addChildNode("extent",tmp); 
-                                                             } 
-         | FONTSET MS_STRING                                 { $$ = addChildNode("fontSet",$2); }
-         | IMAGECOLOR rgb                                    { $$ = addChildNode("imageColor",$2); }
-         | IMAGEQUALITY MS_NUMBER                            { $$ = 0; }
-         | IMAGETYPE MS_STRING                               { $$ = addChildNode("imageType",$2); }
-         | INCLUDE MS_STRING                                 { $$ = addChildNode("include",$2); }
-         | INTERLACE on_off                                  { $$ = 0; }
+map_stmt : ANGLE MS_NUMBER                                    { $$ = createSimpleNode("angle",$2); }
+         | CONFIG MS_STRING MS_STRING                        { $$ = addToMapConfig($2,$3); }
+         | DATAPATTERN expression_opt                        { $$ = createSimpleNode("dataPattern",$2); }
+         | DEBUG debug_opts                                  { $$ = createSimpleNode("debug",$2); }
+         | DEFRESOLUTION MS_NUMBER                           { $$ = createSimpleNode("defResolution",$2); }
+         | EXTENT extent_opt                                 { $$ = createSimpleNode("extent",$2); }
+         | FONTSET MS_STRING                                 { $$ = createSimpleNode("fontSet",$2); }
+         | IMAGECOLOR rgb                                    { $$ = wrapNode(nameNode("imageColor",$2)); }
+         | IMAGEQUALITY MS_NUMBER                            { $$ = createSimpleNode("",$2); }
+         | IMAGETYPE MS_STRING                               { $$ = createSimpleNode("imageType",$2); }
+         | INCLUDE MS_STRING                                 { $$ = createSimpleNode("include",$2); }
+         | INTERLACE on_off                                  { $$ = createSimpleNode("",$2); }
          | layer_block                                       { $$ = $1; }
          | legend_block                                      { $$ = $1; }
-         | MAXSIZE MS_NUMBER                                 { $$ = addChildNode("maxSize",$2); }
+         | MAXSIZE MS_NUMBER                                 { $$ = createSimpleNode("maxSize",$2); }
          | NAME MS_STRING                                    { $$ = addAttribute("name",$2); };
          | outputformat_block                                { $$ = $1; }
          | projection_block                                  { $$ = $1; }
          | querymap_block                                    { $$ = $1; }
          | reference_block                                   { $$ = $1; }
-         | RESOLUTION MS_NUMBER                              { $$ = addChildNode("resolution",$2); }
-         | SCALEDENOM MS_NUMBER                              { $$ = addChildNode("scaleDenom",$2); }
+         | RESOLUTION MS_NUMBER                              { $$ = createSimpleNode("resolution",$2); }
+         | SCALEDENOM MS_NUMBER                              { $$ = createSimpleNode("scaleDenom",$2); }
          | scalebar_block                                    { $$ = $1; }
-         | SHAPEPATH MS_STRING                               { $$ = addChildNode("shapePath",$2); }
-         | SIZE x_y                                          { $$ = addChildNode("size",$2); }
+         | SHAPEPATH MS_STRING                               { $$ = createSimpleNode("shapePath",$2); }
+         | SIZE x_y                                          { $$ = wrapNode(nameNode("size",$2)); }
          | STATUS on_off                                     { $$ = addAttribute("status",$2); }
-         | SYMBOLSET MS_STRING                               { $$ = addChildNode("symbolSet",$2); }
+         | SYMBOLSET MS_STRING                               { $$ = createSimpleNode("symbolSet",$2); }
          | symbol_block                                      { $$ = $1; }
-         | TEMPLATEPATTERN MS_REGEX                          { $$ = addChildNode("templatePattern",$2); }
-         | TRANSPARENT on_off                                { $$ = 0; }
-         | UNITS units_opt                                   { $$ = addChildNode("units",$2); }
+         | TEMPLATEPATTERN expression_opt                    { $$ = createSimpleNode("templatePattern",$2); }
+         | TRANSPARENT on_off                                { $$ = createSimpleNode("",$2); }
+         | UNITS units_opt                                   { $$ = createSimpleNode("units",$2); }
          | web_block                                         { $$ = $1; }
          ;
 
@@ -420,39 +417,39 @@ outputformat_block : OUTPUTFORMAT outputformat_stmts END      { $$ = wrapNode($2
 outputformat_stmts : outputformat_stmts outputformat_stmt     { $$ =   mergeNodes($1,$2); }
                    | outputformat_stmt                        { $$ = nameNode("OutputFormat",$1); }
                    ;
-outputformat_stmt : DRIVER MS_STRING                           { $$ = addChildNode("driver",$2); }
-                  | EXTENSION MS_STRING                        { $$ = addChildNode("extension",$2); }
-                  | FORMATOPTION MS_STRING                     { $$ = addChildNode("formatOption",$2); }
-                  | IMAGEMODE MS_STRING                        { $$ = addChildNode("imageMode",$2); }
-                  | MIMETYPE MS_STRING                         { $$ = addChildNode("mimeType",$2); }
+outputformat_stmt : DRIVER MS_STRING                           { $$ = createSimpleNode("driver",$2); }
+                  | EXTENSION MS_STRING                        { $$ = createSimpleNode("extension",$2); }
+                  | FORMATOPTION MS_STRING                     { $$ = createSimpleNode("formatOption",$2); }
+                  | IMAGEMODE MS_STRING                        { $$ = createSimpleNode("imageMode",$2); }
+                  | MIMETYPE MS_STRING                         { $$ = createSimpleNode("mimeType",$2); }
                   | NAME MS_STRING                             { $$ = addAttribute("name",$2); }
-                  | TRANSPARENT on_off                         { $$ = addChildNode("transparent",$2); }
+                  | TRANSPARENT on_off                         { $$ = createSimpleNode("transparent",$2); }
                   ;
 
-points_block  : POINTS point_stmts END                         { $$ = wrapNode($2); }
-              ;
-point_stmts  : point_stmts point_stmt                           { $$ =   mergeNodes($1,$2); }
+points_block : POINTS point_stmts END                         { $$ = wrapNode($2); }
+             ;
+point_stmts : point_stmts point_stmt                           { $$ = mergeNodes($1,$2); }
             | point_stmt                                       { $$ = nameNode("Points",$1); }
             ;
-point_stmt : x_y                                               { $$ = addChildNode("point",$1); }
+point_stmt : x_y                                               { $$ = nameNode("point",$1); }
            ;
 
-projection_block  : PROJECTION proj_list END                   { $$ = addChildNode("projection",tempString); }
-                  ;
-proj_list  : proj_list MS_STRING                                { strcat(tempString,$2);strcat(tempString,"\n");}
-          | MS_STRING                                          { strcpy(tempString,"\n");strcat(tempString,$1);strcat(tempString,"\n");}
+projection_block : PROJECTION proj_list END                   { $$ = createSimpleNode("projection",$2); }
+                 ;
+proj_list : proj_list MS_STRING                               { $$ = concatStrings(concatStrings($1,strdup("\n")),$2);}
+          | MS_STRING                                          
           ;
 
 
-querymap_block  : QUERYMAP querymap_stmts END                  { $$ = wrapNode($2); }
-                ;
-querymap_stmts  : querymap_stmts querymap_stmt                 { $$ =   mergeNodes($1,$2); }
-                | querymap_stmt                                { $$ = nameNode("QueryMap",$1); }
-                ;
-querymap_stmt  : COLOR rgb                                      { $$ = addChildNode("color",$2); }
-              | SIZE x_y                                       { $$ = addChildNode("size",$2); }
+querymap_block : QUERYMAP querymap_stmts END                  { $$ = wrapNode($2); }
+               ;
+querymap_stmts : querymap_stmts querymap_stmt                 { $$ =   mergeNodes($1,$2); }
+               | querymap_stmt                                { $$ = nameNode("QueryMap",$1); }
+               ;
+querymap_stmt : COLOR rgb                                      { $$ = nameNode("color",$2); }
+              | SIZE x_y                                       { $$ = nameNode("size",$2); }
               | STATUS on_off                                  { $$ = addAttribute("status",$2); }
-              | STYLE querymap_style_opt                       { $$ = addChildNode("style",$2); }
+              | STYLE querymap_style_opt                       { $$ = createSimpleNode("style",$2); }
               ;
 
 
@@ -461,15 +458,15 @@ reference_block  : REFERENCE reference_stmts END                { $$ = wrapNode(
 reference_stmts  : reference_stmts reference_stmt               { $$ =   mergeNodes($1,$2); }
                 | reference_stmt                               { $$ = nameNode("Reference",$1); }
                 ;
-reference_stmt  : COLOR rgb                                    { $$ = addChildNode("color",$2);       }
-                | EXTENT extent_opt                            { $$ = addChildNode("extend",$2);      }
-                | IMAGE MS_STRING                              { $$ = addChildNode("image",$2);       }
-                | MARKER num_str                               { $$ = addChildNode("marker",$2);      }
-                | MARKERSIZE MS_NUMBER                         { $$ = addChildNode("markerSize",$2);  }
-                | MINBOXSIZE MS_NUMBER                         { $$ = addChildNode("minBoxSize",$2);  }
-                | MAXBOXSIZE MS_NUMBER                         { $$ = addChildNode("maxBoxSize",$2);  }
-                | OUTLINECOLOR rgb                             { $$ = addChildNode("outlineColor",$2); }
-                | SIZE x_y                                     { $$ = addChildNode("size",$2);        }
+reference_stmt  : COLOR rgb                                    { $$ = wrapNode(nameNode("color",$2)); }
+                | EXTENT extent_opt                            { $$ = createSimpleNode("extend",$2);      }
+                | IMAGE MS_STRING                              { $$ = createSimpleNode("image",$2);       }
+                | MARKER num_str                               { $$ = createSimpleNode("marker",$2);      }
+                | MARKERSIZE MS_NUMBER                         { $$ = createSimpleNode("markerSize",$2);  }
+                | MINBOXSIZE MS_NUMBER                         { $$ = createSimpleNode("minBoxSize",$2);  }
+                | MAXBOXSIZE MS_NUMBER                         { $$ = createSimpleNode("maxBoxSize",$2);  }
+                | OUTLINECOLOR rgb                             { $$ = wrapNode(nameNode("outlineColor",$2)); }
+                | SIZE x_y                                     { $$ = wrapNode(nameNode("size",$2));        }
                 | STATUS on_off                                { $$ = addAttribute("status",$2);      }
                 ;
 
@@ -479,22 +476,22 @@ scalebar_block  : SCALEBAR scalebar_stmts END                  { $$ = wrapNode($
 scalebar_stmts  : scalebar_stmts scalebar_stmt                 { $$ =   mergeNodes($1,$2); }
                 | scalebar_stmt                                { $$ = nameNode("ScaleBar",$1); }
                 ;
-scalebar_stmt : ALIGN align_opt                                { $$ = addChildNode("align",$2); }
-              | BACKGROUNDCOLOR rgb                            { $$ = addChildNode("backgroundColor",$2); }
-              | COLOR rgb                                      { $$ = addChildNode("color",$2); }
-              | IMAGECOLOR rgb                                 { $$ = addChildNode("imageColor",$2); }
-              | INTERLACE true_false                           { $$ = addChildNode("interlace",$2); }
-              | INTERVALS MS_NUMBER                            { $$ = addChildNode("intervals",$2); }
+scalebar_stmt : ALIGN align_opt                                { $$ = createSimpleNode("align",$2); }
+              | BACKGROUNDCOLOR rgb                            { $$ = wrapNode(nameNode("backgroundColor",$2)); }
+              | COLOR rgb                                      { $$ = wrapNode(nameNode("color",$2)); }
+              | IMAGECOLOR rgb                                 { $$ = wrapNode(nameNode("imageColor",$2)); }
+              | INTERLACE true_false                           { $$ = createSimpleNode("interlace",$2); }
+              | INTERVALS MS_NUMBER                            { $$ = createSimpleNode("intervals",$2); }
               | label_block                                    { $$ = $1; }
-              | OUTLINECOLOR rgb                               { $$ = addChildNode("outlineColor",$2); }
-              | POSITION position_opt                          { $$ = addChildNode("position",$2); }
-              | POSTLABELCACHE true_false                      { $$ = addChildNode("postLabelCache",$2); }
-              | SIZE x_y                                       { $$ = addChildNode("size",$2); }
+              | OUTLINECOLOR rgb                               { $$ = wrapNode(nameNode("outlineColor",$2)); }
+              | POSITION position_opt                          { $$ = createSimpleNode("position",$2); }
+              | POSTLABELCACHE true_false                      { $$ = createSimpleNode("postLabelCache",$2); }
+              | SIZE x_y                                       { $$ = wrapNode(nameNode("size",$2)); }
               | STATUS legend_status_opt                       { $$ = addAttribute("status",$2); }
-              | STYLE MS_NUMBER                                { $$ = addChildNode("style",$2); }
-              | TRANSPARENT on_off                             { $$ = addChildNode("transparent",$2); }
-              | TRANSPARENT true_false                         { $$ = addChildNode("transparent",$2); }
-              | UNITS units_opt                                { $$ = addChildNode("units",$2); }
+              | STYLE MS_NUMBER                                { $$ = createSimpleNode("style",$2); }
+              | TRANSPARENT on_off                             { $$ = createSimpleNode("transparent",$2); }
+              | TRANSPARENT true_false                         { $$ = createSimpleNode("transparent",$2); }
+              | UNITS units_opt                                { $$ = createSimpleNode("units",$2); }
               ;
 
 style_block :  STYLE style_stmts END                             { $$ = wrapNode($2); }
@@ -502,48 +499,53 @@ style_block :  STYLE style_stmts END                             { $$ = wrapNode
 style_stmts  : style_stmts style_stmt                           { $$ =   mergeNodes($1,$2); }
             | style_stmt                                       { $$ = nameNode("Style",$1); }
             ;
-style_stmt  : ANGLE style_angle_opt                            { $$ = 0; }
-            | ANGLEITEM MS_STRING                              { $$ = 0; }
-            | ANTIALIAS true_false                             { $$ = 0; }
+style_stmt  : ANGLE style_angle_opt                            { $$ = createSimpleNode("angle",$2); }
+            | ANGLEITEM MS_STRING                              { $$ = createSimpleNode("angleItem",$2); }
+            | ANTIALIAS true_false                             { $$ = createSimpleNode("antialias",$2); }
             | BACKGROUNDCOLOR rgb                              { $$ = 0; }
             | COLOR color_opt                                  { $$ = 0; }
-            | GAP MS_NUMBER                                    { $$ = 0; }
+            | GAP MS_NUMBER                                    { $$ = createSimpleNode("gap",$2); }
             | GEOMTRANSFORM expression_opt                     { $$ = 0; }
-            | INITIALGAP MS_NUMBER                             { $$ = 0; }
-            | LINECAP linecap_opt                              { $$ = 0; }
-            | LINEJOIN linejoin_opt                            { $$ = 0; }
-            | LINEJOINMAXSIZE MS_NUMBER                        { $$ = 0; }
-            | MAXSCALEDENOM MS_NUMBER                          { $$ = 0; }
-            | MAXSIZE MS_NUMBER                                { $$ = 0; }
-            | MAXWIDTH MS_NUMBER                               { $$ = 0; }
-            | MINSCALEDENOM MS_NUMBER                          { $$ = 0; }
-            | MINSIZE MS_NUMBER                                { $$ = 0; }
-            | MINWIDTH MS_NUMBER                               { $$ = 0; }
+            | INITIALGAP MS_NUMBER                             { $$ = createSimpleNode("geomTransform",$2); }
+            | LINECAP linecap_opt                              { $$ = createSimpleNode("lineCap",$2); }
+            | LINEJOIN linejoin_opt                            { $$ = createSimpleNode("lineJoin",$2); }
+            | LINEJOINMAXSIZE MS_NUMBER                        { $$ = createSimpleNode("lineJoinMaxSize",$2); }
+            | MAXSCALEDENOM MS_NUMBER                          { $$ = createSimpleNode("maxScaleDenom",$2); }
+            | MAXSIZE MS_NUMBER                                { $$ = createSimpleNode("maxSize",$2); }
+            | MAXWIDTH MS_NUMBER                               { $$ = createSimpleNode("maxWitdh",$2); }
+            | MINSCALEDENOM MS_NUMBER                          { $$ = createSimpleNode("minScaleDenom",$2); }
+            | MINSIZE MS_NUMBER                                { $$ = createSimpleNode("minSize",$2); }
+            | MINWIDTH MS_NUMBER                               { $$ = createSimpleNode("minWidth",$2); }
             | OFFSET x_y                                       { $$ = 0; }
-            | OPACITY num_attr                                 { $$ = 0; }
+            | OPACITY num_attr                                 { $$ = createSimpleNode("opacity",$2); }
             | OUTLINECOLOR color_opt                           { $$ = 0; }
-            | OUTLINEWIDTH num_attr                            { $$ = 0; }
+            | OUTLINEWIDTH num_attr                            { $$ = createSimpleNode("outlineWidth",$2); }
             | PATTERN number_list END                          { $$ = 0; }
             | POLAROFFSET num_attr num_attr                    { $$ = 0; }
-            | SIZE num_attr                                    { $$ = 0; }
-            | SYMBOL num_str_attr                              { $$ = 0; }
-            | WIDTH num_attr                                   { $$ = 0; }
+            | SIZE num_attr                                    { $$ = createSimpleNode("size",$2); }
+            | SYMBOL num_str_attr                              { $$ = createSimpleNode("symbol",$2); }
+            | WIDTH num_attr                                   { $$ = createSimpleNode("width",$2); }
             ;
 
 symbol_block  : SYMBOL symbol_stmts END                        { $$ = wrapNode($2); }
               ;
-symbol_stmts  : symbol_stmts symbol_stmt                       { $$ =   mergeNodes($1,$2); }
+symbol_stmts  : symbol_stmts symbol_stmt                       { $$ = mergeNodes($1,$2); }
               | symbol_stmt                                    { $$ = nameNode("Symbol",$1); }
               ;
-symbol_stmt  : ANCHORPOINT x_y                                  { $$ = addChildNode("anchorPoint",$2); }
-            | ANTIALIAS true_false                             { $$ = addChildNode("antialias",$2); }
-            | CHARACTER MS_STRING                              { $$ = addChildNode("character",$2); }
-            | FILLED true_false                                { $$ = addChildNode("filled",$2); }
-            | FONT MS_STRING                                   { $$ = addChildNode("font",$2); }
-            | IMAGE MS_STRING                                  { $$ = addChildNode("image",$2); }
+symbol_stmt : ANCHORPOINT x_y                                  { $$ = wrapNode(nameNode("anchorPoint",$2)); }
+            | ANTIALIAS true_false                             { $$ = createSimpleNode("antialias",$2); }
+            | CHARACTER MS_STRING                              { $$ = createSimpleNode("character",$2); }
+            | FILLED true_false                                { $$ = createSimpleNode("filled",$2); }
+            | FONT MS_STRING                                   { $$ = createSimpleNode("font",$2); }
+			| GAP MS_NUMBER                                    { $$ = createSimpleNode("gap",$2); }
+            | IMAGE MS_STRING                                  { $$ = createSimpleNode("image",$2); }
             | NAME MS_STRING                                   { $$ = addAttribute("name",$2); }
+			| LINECAP linecap_opt                              { $$ = createSimpleNode("lineCap",$2); }
+			| LINEJOIN linejoin_opt                            { $$ = createSimpleNode("lineJoin",$2); }
+			| LINEJOINMAXSIZE MS_NUMBER                        { $$ = createSimpleNode("lineJoinMaxSize",$2); }
+			| PATTERN number_list                              { $$ = createSimpleNode("pattern",$2); }
             | points_block                                     { $$ = $1; }
-            | TRANSPARENT num_str                              { $$ = addChildNode("transparent",$2); }
+            | TRANSPARENT num_str                              { $$ = createSimpleNode("transparent",$2); }
             | TYPE symbol_type_opt                             { $$ = addAttribute("type",$2); }
             ;
 
@@ -555,36 +557,31 @@ web_block  : WEB web_stmts END                                  { $$ = wrapNode(
 web_stmts  : web_stmts web_stmt                                 { $$ =   mergeNodes($1,$2); }
           | web_stmt                                           { $$ = nameNode("Web",$1); }
           ;
-web_stmt  : BROWSEFORMAT MS_STRING                             { $$ = addChildNode("browseFormat",$2); }
-          | EMPTY MS_STRING                                    { $$ = addChildNode("empty",$2); }
-          | ERROR MS_STRING                                    { $$ = addChildNode("error",$2); }
-          | FOOTER MS_STRING                                   { $$ = addChildNode("footer",$2); }
-          | HEADER MS_STRING                                   { $$ = addChildNode("header",$2); }
-          | IMAGEPATH MS_STRING                                { $$ = addChildNode("imagePath",$2); }
-          | IMAGEURL MS_STRING                                 { $$ = addChildNode("imageUrl",$2); }
-          | LEGENDFORMAT MS_STRING                             { $$ = addChildNode("legendFormat",$2); }
-          | LOG MS_STRING                                      { $$ = addChildNode("log",$2); }
-          | MAXSCALEDENOM MS_NUMBER                            { $$ = addChildNode("maxScaleDenom",$2); }
+web_stmt  : BROWSEFORMAT MS_STRING                             { $$ = createSimpleNode("browseFormat",$2); }
+          | EMPTY MS_STRING                                    { $$ = createSimpleNode("empty",$2); }
+          | ERROR MS_STRING                                    { $$ = createSimpleNode("error",$2); }
+          | FOOTER MS_STRING                                   { $$ = createSimpleNode("footer",$2); }
+          | HEADER MS_STRING                                   { $$ = createSimpleNode("header",$2); }
+          | IMAGEPATH MS_STRING                                { $$ = createSimpleNode("imagePath",$2); }
+          | IMAGEURL MS_STRING                                 { $$ = createSimpleNode("imageUrl",$2); }
+          | LEGENDFORMAT MS_STRING                             { $$ = createSimpleNode("legendFormat",$2); }
+          | LOG MS_STRING                                      { $$ = createSimpleNode("log",$2); }
+          | MAXSCALEDENOM MS_NUMBER                            { $$ = createSimpleNode("maxScaleDenom",$2); }
           | MAXSCALE MS_NUMBER                                 { $$ = 0; }
-          | MAXTEMPLATE MS_STRING                              { $$ = addChildNode("maxTemplate",$2); }
+          | MAXTEMPLATE MS_STRING                              { $$ = createSimpleNode("maxTemplate",$2); }
           | metadata_block                                     { $$ = $1; }
-          | MINSCALEDENOM MS_NUMBER                            { $$ = addChildNode("minScaleDenom",$2); }
-          | MINSCALE MS_NUMBER                                 { $$ = 0; }
-          | MINTEMPLATE MS_STRING                              { $$ = addChildNode("minTemplate",$2); }
-          | QUERYFORMAT MS_STRING                              { $$ = addChildNode("queryFormat",$2); }
-          | TEMPLATE MS_STRING                                 { $$ = addChildNode("template",$2); }
-          | TEMPPATH MS_STRING                                 { $$ = addChildNode("",$2); }
+          | MINSCALEDENOM MS_NUMBER                            { $$ = createSimpleNode("minScaleDenom",$2); }
+          | MINSCALE MS_NUMBER                                 { $$ = createSimpleNode("",$2); }
+          | MINTEMPLATE MS_STRING                              { $$ = createSimpleNode("minTemplate",$2); }
+          | QUERYFORMAT MS_STRING                              { $$ = createSimpleNode("queryFormat",$2); }
+          | TEMPLATE MS_STRING                                 { $$ = createSimpleNode("template",$2); }
+          | TEMPPATH MS_STRING                                 { $$ = createSimpleNode("",$2); }
           | validation_block                                   { $$ = $1; }
           ;
 
 
 
-extent_opt : MS_NUMBER MS_NUMBER MS_NUMBER MS_NUMBER           {
-                                                                 char tmp[SMALL_STRING_SIZE];
-                                                                 sprintf(tmp,"%s %s %s %s",$1,$2,$3,$4);
-                                                                 strcpy($$,tmp);
-                                                               }
-           ;
+extent_opt : MS_NUMBER MS_NUMBER MS_NUMBER MS_NUMBER           { $$ = createExtentString($1,$2,$3,$4); }
 
 
 transparency_opt  : MS_NUMBER  
@@ -606,7 +603,8 @@ symbol_type_opt  : MS_SYMBOL_ELLIPSE
                 | MS_SYMBOL_SVG    
                 | MS_TRUETYPE      
                 | MS_SYMBOL_VECTOR 
-                | MS_SYMBOL_SIMPLE
+                | MS_SYMBOL_SIMPLE   
+				| MS_SYMBOL_CARTOLINE
                 ;
 
 legend_status_opt : MS_EMBED 
@@ -634,16 +632,8 @@ connectiontype_opt  : MS_OGR
                     ; // LOCAL IS MISSING
 
 
-str_pairs  : str_pairs str_pair                                 {
-                                                                 nodeBits[$1]->add(nodeBits[$2]); 
-                                                                 $$ = $1;
-                                                               }
-          | str_pair                                           {
-                                                                 XmlNodeBit *bit = new XmlNodeBit();
-                                                                 $$ = nodeBits.size();
-                                                                 nodeBits.push_back(bit);
-                                                                 bit->add(nodeBits[$1]);
-                                                               }
+str_pairs  : str_pairs str_pair                                 { $$ = mergeNodes($1,$2); }
+          | str_pair
           ;
 str_pair  : MS_STRING MS_STRING                                 { $$ = createItemNode($1,$2); }
           ;
@@ -655,31 +645,21 @@ number_list  : number_list MS_NUMBER                            { $$ = 0; }
             | MS_NUMBER                                        { $$ = 0; }
             ;
 
-x_y  : MS_NUMBER MS_NUMBER                         {
-                                                    XmlNodeBit *bit = new XmlNodeBit();
-                                                    bit->addAttribute(new XmlAttribute("x",$1));
-                                                    bit->addAttribute(new XmlAttribute("y",$2));
-                                                    $$ = nodeBits.size();
-                                                    nodeBits.push_back(bit);
-                                                  };
+x_y : MS_NUMBER MS_NUMBER                         { $$ = createSizeNode($1,$2); }
+    ;
 
 linecap_opt  : MS_CJC_BUTT  
             | MS_CJC_ROUND 
             | MS_CJC_SQUARE
+            | MS_CJC_TRIANGLE
             ;
 linejoin_opt  : MS_CJC_ROUND 
               | MS_CJC_MITER 
               | MS_CJC_BEVEL 
               ;
 
-rgb  : MS_NUMBER MS_NUMBER MS_NUMBER    {
-                                        XmlNodeBit *bit = new XmlNodeBit();
-                                        bit->addAttribute(new XmlAttribute("red",$1));
-                                        bit->addAttribute(new XmlAttribute("green",$2));
-                                        bit->addAttribute(new XmlAttribute("blue",$3));
-                                        $$ = nodeBits.size();
-                                        nodeBits.push_back(bit);
-                                      }
+rgb : MS_NUMBER MS_NUMBER MS_NUMBER    { $$ = createRGBNode($1,$2,$3); }
+    ;
 
 style_angle_opt  : MS_NUMBER  
                 | MS_BINDING 
@@ -714,7 +694,7 @@ true_false  : MS_TRUE
             | MS_FALSE
             ;
 color_opt  : rgb                                                { $$ = $1; }
-          | MS_BINDING                                         { $$ = addTextContent($1); }
+          | MS_BINDING                                          { $$ = createNodeWithTextContent($1); }
           ;
 str_attr  : MS_STRING  
           | MS_BINDING 
@@ -748,9 +728,9 @@ size_opt  : MS_NUMBER
           | MS_GIANT  
           | MS_BINDING
           ;
-expression_opt  : MS_STRING                                    { $$ = 0; }
-                | MS_EXPRESSION                                { $$ = 0; }
-                | MS_REGEX                                     { $$ = 0; }
+expression_opt  : MS_STRING                                    { $$ = $1; }
+                | MS_EXPRESSION                                { $$ = $1; }
+                | MS_REGEX                                     { $$ = $1; }
                 ;
 num_str  : MS_NUMBER 
         | MS_STRING 
@@ -776,52 +756,43 @@ int main(){
   */
   
   // parse through the input until there is no more:
-  nodes.push_back(NULL);
-  nodeBits.push_back(NULL);
   yyparse();
   
   //printf("\nSuccessful Parse\n");
 }
 
-void yyerror(const char *s) {
-  cout << "EEK, parse error!  Message: " << s << endl << (line_number+1) << ": " << yytext << endl;
-  // might as well halt now:
-  exit(0);
-}
-
-
-XmlNode* addAttribute(char const *name, char const *value){
+XmlNode *addAttribute(char const *name, char const *value){
 	XmlNode *node = XmlNode_new();
 	XmlNode_addAttribute(node,name,value);
 	return node;
 }
 
-XmlNode* addChildNode(const char *name, const char *content){
+XmlNode *createSimpleNode(const char *name, const char *content){
 	XmlNode *child = XmlNode_new();
 	XmlNode_setName(child,name);
 	XmlNode_setTextContent(child,content);
 	return wrapNode(child);
 }
 
-XmlNode* nameNode(const char *name, XmlNode *node){
+XmlNode *nameNode(const char *name, XmlNode *node){
 	XmlNode_setName(node,name);
 	return node;
 }
 
 
-XmlNode* mergeNodes(XmlNode *node1, XmlNode *node2){
+XmlNode *mergeNodes(XmlNode *node1, XmlNode *node2){
 	XmlNode_merge(node1,node2);
 	return node1;
 }
 
 
-XmlNode* wrapNode(XmlNode *child){
+XmlNode *wrapNode(XmlNode *child){
 	XmlNode *node = XmlNode_new();
 	XmlNode_addChild(node,child);
 	return node;
 }
 
-XmlNode* createItemNode(const char *name, const char *value){
+XmlNode *createItemNode(const char *name, const char *value){
 	XmlNode *node = XmlNode_new();
 	XmlNode_setName(node,"item");
 	XmlNode_addAttribute(node,"name",name);
@@ -829,18 +800,82 @@ XmlNode* createItemNode(const char *name, const char *value){
 	return wrapNode(node);
 }
 
-int addColorOptionNode(const char *rgbName, const char *attributeName, int index){
-  int r;
-  XmlNodeBit *newBit = new XmlNodeBit();
-  XmlNodeBit *origBit = nodeBits[index];
-  XmlNode *child = new XmlNode(
-    origBit->attributes.size() > 0
-    ? rgbName
-    : attributeName
-  );
-  child->add(origBit);
-  newBit->addChild(child);
-  r = nodeBits.size();
-  nodeBits.push_back(newBit);
-  return r;
+XmlNode *addColorOptionNode(const char *rgbName, const char *attributeName, XmlNode* node){
+  if(node->attributeCount > 0){ // rgb nodes will have three attributes
+	XmlNode_setName(node,rgbName);
+  } else {
+	XmlNode_setName(node,attributeName);
+  }
+  return wrapNode(node);  
+}
+
+
+XmlNode *addToMapConfig(const char *name, const char *value){
+	XmlNode *ret;
+	if(configNode == 0){
+		configNode = XmlNode_new();
+		XmlNode_setName(configNode,"Config");
+		ret = wrapNode(configNode);
+	} else {
+		ret = 0;
+	}
+	XmlNode *itemNode = XmlNode_new();
+	XmlNode_setName(itemNode,"item");
+	XmlNode_addAttribute(itemNode,"name",name);
+	XmlNode_setTextContent(itemNode,value);
+	XmlNode_addChild(configNode,itemNode);
+	return ret;
+}
+
+char *concatStrings(char *str1, char *str2){
+	int newSize = strlen(str1) + strlen(str2) + 1;
+	char * newStr = (char*)malloc(newSize);
+	strcpy(newStr,str1);
+	strcat(newStr,str2);
+	free(str1);
+	free(str2);
+	return newStr;
+	
+}
+char *createExtentString(char *str1, char *str2, char *str3, char *str4){
+	char *ret;
+	ret = concatStrings(str1,strdup(" "));
+	ret = concatStrings(ret,str2);
+	ret = concatStrings(ret,strdup(" "));
+	ret = concatStrings(ret,str3);
+	ret = concatStrings(ret,strdup(" "));
+	ret = concatStrings(ret,str4);
+	return ret;
+}
+
+XmlNode *createSizeNode(char *xstr, char *ystr){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addAttribute(node,"x",xstr);
+	XmlNode_addAttribute(node,"y",ystr);
+	free(xstr);
+	free(ystr);
+	return node;
+}
+
+XmlNode *createRGBNode(char *rstr, char *gstr, char *bstr){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addAttribute(node,"red",rstr);
+	XmlNode_addAttribute(node,"green",gstr);
+	XmlNode_addAttribute(node,"blue",bstr);
+	free(rstr);
+	free(gstr);
+	free(bstr);
+	return node;	
+}
+
+XmlNode *createNodeWithTextContent(char *content){
+	XmlNode *node = XmlNode_new();
+	XmlNode_setTextContent(node,content);
+	free(content);
+	return node;
+}
+
+void yyerror(const char *s) {
+  printf("EEK, parse error!  Message: %s\n%d: %s\n", s,line_number+1,yytext);
+  exit(0);
 }
