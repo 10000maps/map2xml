@@ -88,8 +88,8 @@ mapfile : rootelement { printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");Xml
 rootelement : map_block
         | layer_set {
                $$ = $1;
-		  }
-        | symbol_set
+          }
+        | SYMBOLSET symbol_set END { $$ = $2; }
         ;
 layer_set : layer_set layer_block {
                 XmlNode_addChild($1,$2);
@@ -98,7 +98,7 @@ layer_set : layer_set layer_block {
           | layer_block {
                 XmlNode *node = XmlNode_new();
                 XmlNode_setName(node,"LayerSet");
-				XmlNode_addAttribute(node,"xmlns","http://www.mapserver.org/mapserver");
+                XmlNode_addAttribute(node,"xmlns","http://www.mapserver.org/mapserver");
                 XmlNode_addAttribute(node,"xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
                 XmlNode_addAttribute(node,"xsi:schemaLocation","http://www.mapserver.org/mapserver ../mapfile.xsd");
                 if($1 != 0)
@@ -114,6 +114,9 @@ symbol_set : symbol_set symbol_block {
            | symbol_block {
                 XmlNode *node = XmlNode_new();
                 XmlNode_setName(node,"SymbolSet");
+                XmlNode_addAttribute(node,"xmlns","http://www.mapserver.org/mapserver");
+                XmlNode_addAttribute(node,"xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
+                XmlNode_addAttribute(node,"xsi:schemaLocation","http://www.mapserver.org/mapserver ../mapfile.xsd");
                 if($1 != 0)
                     XmlNode_merge(node,$1);
                 $$ = node;
