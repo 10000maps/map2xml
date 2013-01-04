@@ -1,5 +1,5 @@
 
-#include "MapFileXml.h"
+#include "../src/mapfilexml.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
