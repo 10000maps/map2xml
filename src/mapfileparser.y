@@ -640,8 +640,8 @@ XmlNode *addChildNode(XmlNode *parent, XmlNode *child){
 }
 
 void yyerror(const char *s) {
-  printf("EEK, parse error!  Message: %s\n%d: %s\n", s,line_number+1,yytext);
-  exit(0);
+  fprintf(stderr, "%s (line: %d): %s\n", s, line_number+1,yytext);
+  exit(1);
 }
 
 XmlNode *createTypedNode(const char *type, char *value){
