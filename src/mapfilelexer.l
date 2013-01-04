@@ -6,8 +6,8 @@ int lineNumber = 0;
 
 /* *** if this is changed***
 remember to also update the function to return a string */
-#define debugPrint(str) printf("-->\"%s\"\n",str)
-#define setToken(token) printf("-->%s\n",yytext);yylval.str = 0;return(token)
+#define debugPrint(str) /*printf("-->\"%s\"\n",str)*/
+#define setToken(token) /*printf("-->%s\n",yytext)*/;yylval.str = 0;return(token)
 #define setTokenAndString(token) debugPrint(yytext);yylval.str = strdup(yytext);return(token)
 
 YYSTYPE yylval;
@@ -201,82 +201,8 @@ width                                 { setToken(WIDTH); }
 wkt                                   { setToken(WKT); }
 wrap                                  { setToken(WRAP); }
 
-annotation                            { setTokenAndString(MS_LAYER_ANNOTATION); }
-auto                                  { setTokenAndString(MS_AUTO); }
-bevel                                 { setTokenAndString(MS_CJC_BEVEL); }
-bitmap                                { setTokenAndString(MS_BITMAP); }
-butt                                  { setTokenAndString(MS_CJC_BUTT); }
-cartoline                             { setTokenAndString(MS_SYMBOL_CARTOLINE); }
-cc                                    { setTokenAndString(MS_CC); }
-center                                { setTokenAndString(MS_ALIGN_CENTER); }
-chart                                 { setTokenAndString(MS_LAYER_CHART); }
-circle                                { setTokenAndString(MS_LAYER_CIRCLE); }
-cl                                    { setTokenAndString(MS_CL); }
-cr                                    { setTokenAndString(MS_CR); }
-csv                                   { setTokenAndString(MS_DB_CSV); }
-mysql                                 { setTokenAndString(MS_DB_MYSQL); }
-postgresql                            { setTokenAndString(MS_DB_POSTGRES); }
-default                               { setTokenAndString(MS_DEFAULT); }
-dd                                    { setTokenAndString(MS_DD); }
-ellipse                               { setTokenAndString(MS_SYMBOL_ELLIPSE); }
-embed                                 { setTokenAndString(MS_EMBED); }
-false                                 { setTokenAndString(MS_FALSE); }
-feet                                  { setTokenAndString(MS_FEET); }
-follow                                { setTokenAndString(MS_FOLLOW); }
-giant                                 { setTokenAndString(MS_GIANT); }
-hatch                                 { setTokenAndString(MS_SYMBOL_HATCH); }
-hilite                                { setTokenAndString(MS_HILITE); }
-inches                                { setTokenAndString(MS_INCHES); }
-kilometers                            { setTokenAndString(MS_KILOMETERS); }
-large                                 { setTokenAndString(MS_LARGE); }
-lc                                    { setTokenAndString(MS_LC); }
-left                                  { setTokenAndString(MS_ALIGN_LEFT); }
-line                                  { setTokenAndString(MS_LAYER_LINE); }
-ll                                    { setTokenAndString(MS_LL); }
-lr                                    { setTokenAndString(MS_LR); }
-medium                                { setTokenAndString(MS_MEDIUM); }
-meters                                { setTokenAndString(MS_METERS); }
-nauticalmiles                         { setTokenAndString(MS_NAUTICALMILES); }
-miles                                 { setTokenAndString(MS_MILES); }
-miter                                 { setTokenAndString(MS_CJC_MITER); }
-multiple                              { setTokenAndString(MS_MULTIPLE); }
-none                                  { setTokenAndString(MS_CJC_NONE); }
-normal                                { setTokenAndString(MS_NORMAL); }
-off                                   { setTokenAndString(MS_OFF); }
-ogr                                   { setTokenAndString(MS_OGR); }
-on                                    { setTokenAndString(MS_ON); }
-one-to-one                            { setTokenAndString(MS_JOIN_ONE_TO_ONE); }
-one-to-many                           { setTokenAndString(MS_JOIN_ONE_TO_MANY); }
-oraclespatial                         { setTokenAndString(MS_ORACLESPATIAL); }
-percentages                           { setTokenAndString(MS_PERCENTAGES); }
-pixmap                                { setTokenAndString(MS_SYMBOL_PIXMAP); }
-pixels                                { setTokenAndString(MS_PIXELS); }
-point                                 { setTokenAndString(MS_LAYER_POINT); }
-polygon                               { setTokenAndString(MS_LAYER_POLYGON); }
-postgis                               { setTokenAndString(MS_POSTGIS); }
-mygis                                 { setTokenAndString(MS_MYGIS); }
+
 plugin                                { setTokenAndString(MS_PLUGIN); }
-query                                 { setTokenAndString(MS_LAYER_QUERY); }
-raster                                { setTokenAndString(MS_LAYER_RASTER); }
-right                                 { setTokenAndString(MS_ALIGN_RIGHT); }
-round                                 { setTokenAndString(MS_CJC_ROUND); }
-sde                                   { setTokenAndString(MS_SDE); }
-selected                              { setTokenAndString(MS_SELECTED); }
-simple                                { setTokenAndString(MS_SYMBOL_SIMPLE); }
-single                                { setTokenAndString(MS_SINGLE); }
-small                                 { setTokenAndString(MS_SMALL); }
-square                                { setTokenAndString(MS_CJC_SQUARE); }
-tiny                                  { setTokenAndString(MS_TINY); }
-triangle                              { setTokenAndString(MS_CJC_TRIANGLE); }
-true                                  { setTokenAndString(MS_TRUE); }
-truetype                              { setTokenAndString(MS_TRUETYPE); }
-uc                                    { setTokenAndString(MS_UC); }
-ul                                    { setTokenAndString(MS_UL); }
-ur                                    { setTokenAndString(MS_UR); }
-vector                                { setTokenAndString(MS_SYMBOL_VECTOR); }
-wfs                                   { setTokenAndString(MS_WFS); }
-wms                                   { setTokenAndString(MS_WMS); }
-alpha                                 { setTokenAndString(MS_GD_ALPHA); }
 
 \[.*\]                                { setTokenAndString(MS_BINDING); }
 

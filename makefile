@@ -1,6 +1,6 @@
 
 
-.PHONEY: test clean
+.PHONEY: test test2 memtest clean
 
 
 bin/mapfileparser: mapfileparser.tab.c mapfile.yy.c mapfilexml.c
@@ -14,7 +14,17 @@ mapfile.yy.c: mapfilelexer.l
 
 
 test: bin/mapfileparser
-	valgrind bin/mapfileparser < maps/test.map
+	xsltproc mapfile.xsl maps/test.xml | bin/mapfileparser > temp.xml
+	xmllint --noout --schema mapfile.xsd temp.xml
+	xsltproc mapfile.xsl temp.xml > temp.map
+	xsltproc mapfile.xsl maps/test.xml > temp2.map
+	diff temp2.map temp.map
+	
+test2: bin/mapfileparser
+	xsltproc mapfile.xsl maps/test.xml | bin/mapfileparser
+
+memtest: bin/mapfileparser
+	xsltproc mapfile.xsl maps/test.xml | valgrind bin/mapfileparser
 	
 clean:
 	rm -f mapfileparser.tab.c
