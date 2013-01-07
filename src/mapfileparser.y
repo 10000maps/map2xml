@@ -14,12 +14,12 @@ int line_number;
 XmlNode* wrapNode(XmlNode *child);
 XmlNode* mergeNodes(XmlNode *node1, XmlNode *node2);
 XmlNode* nameNode(const char *name, XmlNode *node);
-XmlNode* createSimpleNode(const char *name, const char *content);
-XmlNode* createAttributeNode(char const *name, char const *value);
+XmlNode* createSimpleNode(const char *name, char *content);
+XmlNode* createAttributeNode(char const *name, char *value);
 XmlNode* configNode = 0;
-XmlNode* addToMapConfig(const char *name, const char *value);
+XmlNode* addToMapConfig(char *name, char *value);
 char *concatStrings(char *str1, char *str2);
-XmlNode *createItemNode(const char *name, const char *value);
+XmlNode *createItemNode(char *name, char *value);
 XmlNode *createXYNode(char *xstr, char *ystr);
 XmlNode *createRGBNode(char *rstr, char *gstr, char *bstr);
 void yyerror(const char *s);
@@ -554,16 +554,18 @@ int main(){
   yyparse();
 }
 
-XmlNode *createAttributeNode(char const *name, char const *value){
+XmlNode *createAttributeNode(char const *name, char *value){
     XmlNode *node = XmlNode_new();
     XmlNode_addAttribute(node,name,value);
+    free(value);
     return node;
 }
 
-XmlNode *createSimpleNode(const char *name, const char *content){
+XmlNode *createSimpleNode(const char *name, char *content){
     XmlNode *child = XmlNode_new();
     XmlNode_setName(child,name);
     XmlNode_setTextContent(child,content);
+    free(content);
     return wrapNode(child);
 }
 
@@ -583,15 +585,17 @@ XmlNode *wrapNode(XmlNode *child){
     return node;
 }
 
-XmlNode *createItemNode(const char *name, const char *value){
+XmlNode *createItemNode(char *name, char *value){
     XmlNode *node = XmlNode_new();
     XmlNode_setName(node,"item");
     XmlNode_addAttribute(node,"name",name);
     XmlNode_setTextContent(node,value);
+    free(name);
+    free(value);
     return node;
 }
 
-XmlNode *addToMapConfig(const char *name, const char *value){
+XmlNode *addToMapConfig(char *name, char *value){
     XmlNode *ret;
     if(configNode == 0){
         configNode = XmlNode_new();
@@ -642,6 +646,7 @@ XmlNode *createTypedNode(const char *type, char *value){
     XmlNode *node = XmlNode_new();
     XmlNode_addAttribute(node,"type",type);
     XmlNode_setTextContent(node,value);
+    free(value);
     return node;
 }
 
