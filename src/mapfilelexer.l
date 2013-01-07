@@ -21,11 +21,6 @@ YYSTYPE yylval;
 
 #.*                                   ;
 
-colorrange                            { setToken(COLORRANGE); }
-alphacolorrange                       { setToken(ALPHACOLORRANGE); }
-datarange                             { setToken(DATARANGE); }
-rangeitem                             { setToken(RANGEITEM); }
-
 align                                 { setToken(ALIGN); }
 alphacolor                            { setToken(ALPHACOLOR); }
 angle                                 { setToken(ANGLE); }
@@ -202,7 +197,7 @@ wkt                                   { setToken(WKT); }
 wrap                                  { setToken(WRAP); }
 
 
-plugin                                { setTokenAndString(MS_PLUGIN); }
+plugin                                { setToken(MS_PLUGIN); }
 
 \[.*\]                                { setTokenAndString(MS_BINDING); }
 
