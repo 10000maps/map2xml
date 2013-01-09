@@ -2,7 +2,7 @@
 
 int lineNumber = 0;
 #include <string.h>
-#include "../gen/mapfileparser.tab.h"
+#include "../gen/parser6.tab.h"
 
 /* *** if this is changed***
 remember to also update the function to return a string */

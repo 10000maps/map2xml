@@ -1,3 +1,5 @@
 bin/*
 gen/*
-tests/tmp/*
+tests/5/tmp/*
+tests/6/tmp/*
+

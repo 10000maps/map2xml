@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ms="http://www.mapserver.org/mapserver" targetNamespace="http://www.mapserver.org/mapserver" elementFormDefault="qualified" attributeFormDefault="unqualified" version="6.0.1">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ms="http://www.mapserver.org/mapserver" targetNamespace="http://www.mapserver.org/mapserver" elementFormDefault="qualified" attributeFormDefault="unqualified" version="5.6.3">
 	<!-- Definition of types -->
 	<xs:simpleType name="rgbColorValueType">
 		<xs:restriction base="xs:integer">
@@ -179,7 +179,6 @@
 			<xs:element name="footer" type="xs:string" minOccurs="0"/>
 			<xs:element name="header" type="xs:string" minOccurs="0"/>
 			<xs:element name="imagePath" type="xs:string" minOccurs="0"/>
-			<xs:element name="tempPath" type="xs:string" minOccurs="0"/>
 			<xs:element name="imageUrl" type="xs:string" minOccurs="0"/>
 			<xs:element name="legendFormat" type="xs:string" minOccurs="0"/>
 			<xs:element name="log" type="xs:string" minOccurs="0"/>
@@ -193,7 +192,6 @@
 			<xs:element name="Validation" type="ms:itemType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
-	<!-- OUTPUTFORMAT Definition -->
 	<xs:complexType name="OutputFormat">
 		<xs:sequence>
 			<xs:element name="driver" type="xs:string" minOccurs="0"/>
@@ -208,7 +206,6 @@
 						<xs:enumeration value="BYTE"/>
 						<xs:enumeration value="INT16"/>
 						<xs:enumeration value="FLOAT32"/>
-						<xs:enumeration value="FEATURE"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -266,7 +263,7 @@
 					<xs:union memberTypes="ms:angleType ms:attributeType">
 						<xs:simpleType>
 							<xs:restriction base="xs:string">
-								<xs:pattern value="[aA][uU][tT][oO]|[fF][oO][lL][lL][oO][wW]|[aA][uU][tT][oO]2"/>
+								<xs:pattern value="[aA][uU][tT][oO]|[fF][oO][lL][lL][oO][wW]"/>
 								<!-- attribute -->
 							</xs:restriction>
 						</xs:simpleType>
@@ -274,6 +271,9 @@
 				</xs:simpleType>
 			</xs:element>
 			<xs:element name="antialias" type="ms:booleanEnum" minOccurs="0"/>
+			<xs:element name="backgroundColor" type="ms:rgbColorType" minOccurs="0"/>
+			<xs:element name="backgroundShadowColor" type="ms:rgbColorType" minOccurs="0"/>
+			<xs:element name="backgroundShadowSize" type="ms:sizeType" minOccurs="0"/>
 			<xs:element name="buffer" type="xs:integer" minOccurs="0"/>
 			<xs:choice minOccurs="0">
 				<xs:element name="color" type="ms:rgbColorType"/>
@@ -283,7 +283,6 @@
 			<xs:element name="font" type="xs:string" minOccurs="0"/>
 			<xs:element name="force" type="ms:booleanEnum" default="FALSE" minOccurs="0"/>
 			<xs:element name="maxLength" type="xs:integer" default="0" minOccurs="0"/>
-			<xs:element name="maxOverlapAngle" type="xs:float" minOccurs="0"/>
 			<xs:element name="maxSize" type="xs:integer" default="256" minOccurs="0"/>
 			<xs:element name="minDistance" type="xs:integer" minOccurs="0"/>
 			<xs:element name="minFeatureSize" minOccurs="0">
@@ -346,7 +345,6 @@
 					</xs:union>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="Style" type="ms:Style" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="wrap" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
 		<xs:attribute name="type" use="required">
@@ -358,14 +356,6 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-    <!-- LABELLEADER Definition -->
-    <xs:complexType name="LabelLeader">
-        <xs:sequence>
-            <xs:element name="gridstep" type="xs:positiveInteger" minOccurs="0"/>
-            <xs:element name="maxdistance" type="xs:positiveInteger" minOccurs="0"/>
-            <xs:element name="Style"  type="ms:Style" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
 	<!-- STYLE Definition -->
 	<xs:complexType name="Style">
 		<xs:sequence>
@@ -380,67 +370,31 @@
 					</xs:union>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="antialias" type="ms:booleanEnum" minOccurs="0"/>
+			<xs:element name="antialias" type="ms:booleanEnum"/>
 			<xs:element name="backgroundColor" type="ms:rgbColorType" minOccurs="0"/>
 			<xs:choice minOccurs="0">
 				<xs:element name="color" type="ms:rgbColorType"/>
 				<xs:element name="colorAttribute" type="ms:attributeType"/>
 			</xs:choice>
-			<xs:element name="gap" type="xs:integer" default="0" minOccurs="0"/>
 			<xs:element name="geomTransform" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:enumeration value="BBOX"/>
-						<xs:enumeration value="END"/>
-						<xs:enumeration value="LABELPNT"/>
-						<xs:enumeration value="LABELPOLY"/>
 						<xs:enumeration value="START"/>
+						<xs:enumeration value="END"/>
 						<xs:enumeration value="VERTICES"/>
+						<xs:enumeration value="BBOX"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-            <xs:element name="initialGap" type="xs:double" minOccurs="0"/>
-			<xs:element name="lineCap" default="BUTT" minOccurs="0">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:enumeration value="BUTT"/>
-						<xs:enumeration value="ROUND"/>
-						<xs:enumeration value="SQUARE"/>
-						<xs:enumeration value="TRIANGLE"/>
-				                <xs:enumeration value="SVG"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="lineJoin" minOccurs="0">
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:enumeration value="ROUND"/>
-						<xs:enumeration value="MITER"/>
-						<xs:enumeration value="BEVEL"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="lineJoinMaxSize" type="xs:integer" default="3" minOccurs="0"/>
-			<xs:element name="maxSize" type="xs:float" default="500" minOccurs="0"/>
-			<xs:element name="maxWidth" type="xs:float" default="32" minOccurs="0"/>
-			<xs:element name="minSize" type="xs:float" default="0" minOccurs="0"/>
-			<xs:element name="minWidth" type="xs:float" default="0" minOccurs="0"/>
+			<xs:element name="maxSize" type="xs:integer" default="50" minOccurs="0"/>
+			<xs:element name="minSize" type="xs:integer" default="0" minOccurs="0"/>
+			<xs:element name="minWidth" type="xs:integer" minOccurs="0"/>
 			<xs:element name="offset" type="ms:sizeType" minOccurs="0"/>
 			<xs:element name="opacity" type="xs:integer" default="0" minOccurs="0"/>
 			<xs:choice minOccurs="0">
 				<xs:element name="outlineColor" type="ms:rgbColorType"/>
 				<xs:element name="outlineColorAttribute" type="ms:attributeType"/>
 			</xs:choice>
-			<xs:element name="pattern" minOccurs="0">
-				<xs:simpleType>
-					<xs:list itemType="xs:float"/>
-				</xs:simpleType>
-			</xs:element>
-            <xs:element name="polarOffset" minOccurs="0">
-                <xs:simpleType>
-                    <xs:union memberTypes="xs:positiveInteger ms:attributeType xs:positiveInteger ms:attributeType"/>
-                </xs:simpleType>
-            </xs:element>
 			<xs:element name="size" default="1" minOccurs="0">
 				<xs:simpleType>
 					<xs:union memberTypes="xs:positiveInteger ms:attributeType"/>
@@ -464,7 +418,6 @@
 			<xs:element name="group" type="xs:string" minOccurs="0"/>
 			<xs:element name="keyImage" type="xs:string" minOccurs="0"/>
 			<xs:element name="Label" type="ms:Label" minOccurs="0"/>
-            <xs:element name="LabelLeader" type="ms:LabelLeader" minOccurs="0"/>
 			<xs:element name="maxScaleDenom" type="xs:double" minOccurs="0"/>
 			<xs:element name="maxSize" type="xs:integer" default="50" minOccurs="0"/>
 			<xs:element name="minScaleDenom" type="xs:double" minOccurs="0"/>
@@ -485,12 +438,37 @@
 	<!-- SYMBOL Definition -->
 	<xs:complexType name="Symbol">
 		<xs:sequence>
-            <xs:element name="anchorPoint" type="ms:pointType" minOccurs="0"/>
 			<xs:element name="antialias" type="ms:booleanEnum" minOccurs="0"/>
 			<xs:element name="character" type="xs:string" minOccurs="0"/>
 			<xs:element name="filled" type="ms:booleanEnum" minOccurs="0"/>
 			<xs:element name="font" type="xs:string" minOccurs="0"/>
+			<xs:element name="gap" type="xs:integer" default="0" minOccurs="0"/>
 			<xs:element name="image" type="xs:string" minOccurs="0"/>
+			<xs:element name="lineCap" default="BUTT" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="BUTT"/>
+						<xs:enumeration value="ROUND"/>
+						<xs:enumeration value="SQUARE"/>
+						<xs:enumeration value="TRIANGLE"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="lineJoin" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="ROUND"/>
+						<xs:enumeration value="MITER"/>
+						<xs:enumeration value="BEVEL"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="lineJoinMaxSize" type="xs:integer" default="3" minOccurs="0"/>
+			<xs:element name="pattern" minOccurs="0">
+				<xs:simpleType>
+					<xs:list itemType="xs:integer"/>
+				</xs:simpleType>
+			</xs:element>
 			<xs:element name="Points" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
@@ -498,9 +476,9 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="transparent" type="xs:integer" minOccurs="0"/>
+			<xs:element name="transparent" type="xs:positiveInteger" minOccurs="0"/>
 		</xs:sequence>
-	        <xs:attribute name="name" type="xs:string"/>
+		<xs:attribute name="name" type="xs:string"/>
 		<xs:attribute name="type" use="required">
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -508,6 +486,7 @@
 					<xs:enumeration value="ELLIPSE"/>
 					<xs:enumeration value="PIXMAP"/>
 					<xs:enumeration value="TRUETYPE"/>
+					<xs:enumeration value="CARTOLINE"/>
 					<xs:enumeration value="HATCH"/>
 					<xs:enumeration value="SIMPLE"/>
 				</xs:restriction>
@@ -548,9 +527,7 @@
 			<xs:element name="connectionType" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:enumeration value="MYSQL"/>
-						<xs:enumeration value="POSTGRESQL"/>
-						<xs:enumeration value="CSV"/>
+						<xs:enumeration value="OGR"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -594,36 +571,24 @@
 		</xs:sequence>
 		<xs:attribute name="status" type="ms:stateEnum" default="OFF"/>
 	</xs:complexType>
-        <!-- CLUSTER Definition -->
-	<xs:complexType name="Cluster">
-		<xs:sequence>
-			<xs:element name="buffer" type="xs:float" minOccurs="0"/>
-			<xs:element name="filter" type="ms:expressionType" minOccurs="0"/>
-			<xs:element name="group" type="ms:expressionType" minOccurs="0"/>
-			<xs:element name="maxdistance" type="xs:positiveInteger" minOccurs="0"/>
-			<xs:element name="region" type="xs:string" minOccurs="0"/>
-		</xs:sequence>
-	</xs:complexType>
 	<!-- LAYER Definition -->
 	<xs:complexType name="Layer">
 		<xs:sequence>
 			<xs:element name="Class" type="ms:Class" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="classGroup" type="xs:string" minOccurs="0"/>
 			<xs:element name="classItem" type="xs:string" minOccurs="0"/>
-			<xs:element name="Cluster" type="ms:Cluster" minOccurs="0"/>
 			<xs:element name="connection" type="xs:string" minOccurs="0"/>
 			<xs:element name="connectionType" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
-						<xs:enumeration value="LOCAL"/>
 						<xs:enumeration value="SDE"/>
 						<xs:enumeration value="OGR"/>
+						<xs:enumeration value="MYGIS"/>
 						<xs:enumeration value="WFS"/>
 						<xs:enumeration value="POSTGIS"/>
 						<xs:enumeration value="ORACLESPATIAL"/>
 						<xs:enumeration value="WMS"/>
 						<xs:enumeration value="PLUGIN"/>
-						<xs:enumeration value="UNION"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -648,7 +613,6 @@
 			<xs:element name="labelMaxScaleDenom" type="xs:double" minOccurs="0"/>
 			<xs:element name="labelMinScaleDenom" type="xs:double" minOccurs="0"/>
 			<xs:element name="labelRequires" type="xs:string" minOccurs="0"/>
-			<xs:element name="mask" type="xs:string" minOccurs="0"/>
 			<xs:element name="maxFeatures" type="xs:positiveInteger" minOccurs="0"/>
 			<xs:element name="maxGeoWidth" type="xs:double" minOccurs="0"/>
 			<xs:element name="maxScaleDenom" type="xs:double" minOccurs="0"/>
