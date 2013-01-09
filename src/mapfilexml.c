@@ -6,6 +6,7 @@
 
 char *str_replace(char *orig, const char *rep, const char *with);
 char *escape(char *str);
+XmlNode* configNode = 0;
 
 XmlNode* XmlNode_new(){
 	XmlNode *new = (XmlNode*) malloc(sizeof(XmlNode));
@@ -219,4 +220,112 @@ char *str_replace(char *orig, const char *rep, const char *with) {
     }
     strcpy(tmp, orig);
     return result;
+}
+
+int main(){
+	yyparse();
+}
+
+XmlNode *createAttributeNode(char const *name, char *value){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addAttribute(node,name,value);
+	free(value);
+	return node;
+}
+
+XmlNode *createSimpleNode(const char *name, char *content){
+	XmlNode *child = XmlNode_new();
+	XmlNode_setName(child,name);
+	XmlNode_setTextContent(child,content);
+	free(content);
+	return wrapNode(child);
+}
+
+XmlNode *nameNode(const char *name, XmlNode *node){
+	XmlNode_setName(node,name);
+	return node;
+}
+
+XmlNode *mergeNodes(XmlNode *node1, XmlNode *node2){
+	XmlNode_merge(node1,node2);
+	return node1;
+}
+
+XmlNode *wrapNode(XmlNode *child){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addChild(node,child);
+	return node;
+}
+
+XmlNode *createItemNode(char *name, char *value){
+	XmlNode *node = XmlNode_new();
+	XmlNode_setName(node,"item");
+	XmlNode_addAttribute(node,"name",name);
+	XmlNode_setTextContent(node,value);
+	free(name);
+	free(value);
+	return node;
+}
+
+XmlNode *addToMapConfig(char *name, char *value){
+	XmlNode *ret;
+	if(configNode == 0){
+		configNode = XmlNode_new();
+		XmlNode_setName(configNode,"Config");
+		ret = wrapNode(configNode);
+	} else {
+		ret = 0;
+	}
+	XmlNode *itemNode = XmlNode_new();
+	XmlNode_setName(itemNode,"item");
+	XmlNode_addAttribute(itemNode,"name",name);
+	XmlNode_setTextContent(itemNode,value);
+	XmlNode_addChild(configNode,itemNode);
+	return ret;
+}
+
+XmlNode *createXYNode(char *xstr, char *ystr){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addAttribute(node,"x",xstr);
+	XmlNode_addAttribute(node,"y",ystr);
+	free(xstr);
+	free(ystr);
+	return node;
+}
+
+XmlNode *createRGBNode(char *rstr, char *gstr, char *bstr){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addAttribute(node,"red",rstr);
+	XmlNode_addAttribute(node,"green",gstr);
+	XmlNode_addAttribute(node,"blue",bstr);
+	free(rstr);
+	free(gstr);
+	free(bstr);
+	return node;
+}
+
+XmlNode *addChildNode(XmlNode *parent, XmlNode *child){
+	XmlNode_addChild(parent,child);
+	return parent;
+}
+
+
+
+XmlNode *createTypedNode(const char *type, char *value){
+	XmlNode *node = XmlNode_new();
+	XmlNode_addAttribute(node,"type",type);
+	XmlNode_setTextContent(node,value);
+	free(value);
+	return node;
+}
+
+char *concatStrings(char *str1, char *str2){
+	int len = strlen(str1) + strlen(str2) + 2;
+	char *newstr = malloc(len);
+	strcpy(newstr,str1);
+	strcat(newstr," ");
+	strcat(newstr,str2);
+	free(str1);
+	free(str2);
+	return newstr;
 }
