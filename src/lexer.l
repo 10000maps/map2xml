@@ -2,7 +2,7 @@
 
 int lineNumber = 0;
 #include <string.h>
-#include "../gen/parser5.tab.h"
+#include "../gen/parser.tab.h"
 
 /* *** if this is changed***
 remember to also update the function to return a string */

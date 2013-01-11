@@ -9,7 +9,7 @@ tmp/6/orig.%.map: 6/%.xml
 	xsltproc 6/mapfile.xsl $^ > $@
 
 tmp/6/new.%.xml: tmp/6/orig.%.map
-	../bin/map2xml6 < $^ > $@
+	../bin/map2xml < $^ > $@
 	
 tmp/6/new.%.map: tmp/6/new.%.xml
 	xsltproc 6/mapfile.xsl $^ > $@
@@ -35,7 +35,7 @@ tmp/5/orig.%.map: 5/%.xml
 	xsltproc 5/mapfile.xsl $^ > $@
 
 tmp/5/new.%.xml: tmp/5/orig.%.map
-	../bin/map2xml5 < $^ > $@
+	../bin/map2xml < $^ > $@
 	
 tmp/5/new.%.map: tmp/5/new.%.xml
 	xsltproc 5/mapfile.xsl $^ > $@
