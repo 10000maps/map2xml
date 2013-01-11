@@ -29,3 +29,18 @@ void XmlNode_addAttribute(XmlNode *this, const char *name, const char *value);
 
 XmlAttribute* XmlAttribute_new(const char *name, const char *value);
 void XmlAttribute_destory(XmlAttribute *this);
+
+
+XmlNode* wrapNode(XmlNode *child);
+XmlNode* mergeNodes(XmlNode *node1, XmlNode *node2);
+XmlNode* nameNode(const char *name, XmlNode *node);
+XmlNode* createSimpleNode(const char *name, char *content);
+XmlNode* createAttributeNode(char const *name, char *value);
+XmlNode* configNode;
+XmlNode* addToMapConfig(char *name, char *value);
+char *concatStrings(char *str1, char *str2);
+XmlNode *createItemNode(char *name, char *value);
+XmlNode *createXYNode(char *xstr, char *ystr);
+XmlNode *createRGBNode(char *rstr, char *gstr, char *bstr);
+XmlNode *addChildNode(XmlNode *parent, XmlNode *child);
+XmlNode *createTypedNode(const char *type, char *value);
