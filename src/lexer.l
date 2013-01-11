@@ -23,6 +23,7 @@ YYSTYPE yylval;
                           
 align                     { setToken(ALIGN); }
 alphacolor                { setToken(ALPHACOLOR); }
+anchorpoint               { setToken(ANCHORPOINT); }
 angle                     { setToken(ANGLE); }
 antialias                 { setToken(ANTIALIAS); }
 backgroundcolor           { setToken(BACKGROUNDCOLOR); }
@@ -35,6 +36,7 @@ character                 { setToken(CHARACTER); }
 class                     { setToken(CLASS); }
 classitem                 { setToken(CLASSITEM); }
 classgroup                { setToken(CLASSGROUP); }
+cluster                   { setToken(CLUSTER); }
 color                     { setToken(COLOR); }
 config                    { setToken(CONFIG); }
 connection                { setToken(CONNECTION); }
@@ -64,6 +66,7 @@ from                      { setToken(FROM); }
 gap                       { setToken(GAP); }
 geomtransform             { setToken(GEOMTRANSFORM); }
 grid                      { setToken(GRID); }
+gridstep                  { setToken(GRIDSTEP); }
 graticule                 { setToken(GRATICULE); }
 group                     { setToken(GROUP); }
 header                    { setToken(HEADER); }
@@ -76,6 +79,7 @@ imagepath                 { setToken(IMAGEPATH); }
 imageurl                  { setToken(IMAGEURL); }
 include                   { setToken(INCLUDE); }
 index                     { setToken(INDEX); }
+initialgap                { setToken(INITIALGAP); }
 interlace                 { setToken(INTERLACE); }
 intervals                 { setToken(INTERVALS); } 
 join                      { setToken(JOIN); }
@@ -93,6 +97,7 @@ labelminscaledenom        { setToken(LABELMINSCALEDENOM); }
 labelrequires             { setToken(LABELREQUIRES); }
 latlon                    { setToken(LATLON); }
 layer                     { setToken(LAYER); }
+leader                    { setToken(LEADER); }
 legend                    { setToken(LEGEND); }
 legendformat              { setToken(LEGENDFORMAT); }
 linecap                   { setToken(LINECAP); }
@@ -102,10 +107,13 @@ log                       { setToken(LOG); }
 map                       { setToken(MAP); }
 marker                    { setToken(MARKER); }
 markersize                { setToken(MARKERSIZE); }
+mask                      { setToken(MASK); }
 maxarcs                   { setToken(MAXARCS); }
 maxboxsize                { setToken(MAXBOXSIZE); }
+maxdistance               { setToken(MAXDISTANCE); }
 maxfeatures               { setToken(MAXFEATURES); }
 maxinterval               { setToken(MAXINTERVAL); }
+maxoverlapangle           { setToken(MAXOVERLAPANGLE); }
 maxscale                  { setToken(MAXSCALE); }
 maxscaledenom             { setToken(MAXSCALEDENOM); }
 maxgeowidth               { setToken(MAXGEOWIDTH); }
@@ -119,7 +127,6 @@ mimetype                  { setToken(MIMETYPE); }
 minarcs                   { setToken(MINARCS); }
 minboxsize                { setToken(MINBOXSIZE); }
 mindistance               { setToken(MINDISTANCE); }
-repeatdistance            { setToken(REPEATDISTANCE); }
 minfeaturesize            { setToken(MINFEATURESIZE); }
 mininterval               { setToken(MININTERVAL); }
 minscale                  { setToken(MINSCALE); }
@@ -148,6 +155,7 @@ partials                  { setToken(PARTIALS); }
 pattern                   { setToken(PATTERN); }
 plugin                    { setToken(MS_PLUGIN); }
 points                    { setToken(POINTS); }
+polaroffset               { setToken(POLAROFFSET); }
 items                     { setToken(ITEMS); }
 position                  { setToken(POSITION); }
 postlabelcache            { setToken(POSTLABELCACHE); }
@@ -157,7 +165,9 @@ projection                { setToken(PROJECTION); }
 queryformat               { setToken(QUERYFORMAT); }
 querymap                  { setToken(QUERYMAP); }
 reference                 { setToken(REFERENCE); }
+region                    { setToken(REGION); }
 relativeto                { setToken(RELATIVETO); }
+repeatdistance            { setToken(REPEATDISTANCE); }
 requires                  { setToken(REQUIRES); }
 resolution                { setToken(RESOLUTION); }
 defresolution             { setToken(DEFRESOLUTION); }

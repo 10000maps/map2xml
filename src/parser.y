@@ -40,7 +40,7 @@ void yyerror(const char *s);
 	TEMPLATEPATTERN TEXT TILEINDEX TILEITEM TITLE TO TOLERANCE TOLERANCEUNITS TRANSPARENCY TRANSPARENT
 	TRANSFORM TYPE UNITS VALIDATION WEB WIDTH WKT WRAP MS_PLUGIN LEADER MS_ISTRING INITIALGAP CLUSTER
 	MAXDISTANCE ANCHORPOINT MS_BINDING MS_REGEX MS_NUMBER TEMPPATH MASK MS_STRING GRIDSTEP
-	MAXOVERLAPANGLE LABELANGLEITEM REGION LABELSIZEITEM MS_IREGEX MS_EXPRESSION;
+	MAXOVERLAPANGLE LABELANGLEITEM REGION LABELSIZEITEM MS_IREGEX MS_EXPRESSION POLAROFFSET;
 
 %type <node> mapfile layer_set symbol_set class_block class_stmts class_stmt cluster_block
 	cluster_stmts cluster_stmt feature_block feature_stmts feature_stmt grid_block grid_stmts
@@ -182,11 +182,11 @@ cluster_stmts
 	| cluster_stmt { $$ = nameNode("Cluster",$1); }
 	;
 cluster_stmt
-	: MAXDISTANCE value { $$ = createSimpleNode("maxDistance",$2); }
+	: MAXDISTANCE value { $$ = createSimpleNode("maxdistance",$2); }
 	| REGION value { $$ = createSimpleNode("region",$2); }
 	| BUFFER value { $$ = createSimpleNode("buffer",$2); }
-	| GROUP expressionValue { $$ = 0; }
-	| FILTER expressionValue { $$ = 0; }
+	| GROUP expressionValue { $$ = wrapNode(nameNode("group",$2)); }
+	| FILTER expressionValue { $$ = wrapNode(nameNode("filter",$2)); }
 	;
 
 feature_block
@@ -281,6 +281,7 @@ label_stmt
 	| SHADOWCOLOR rgbColor { $$ = wrapNode(nameNode("shadowColor",$2)); }
 	| SHADOWSIZE xyValue { $$ = wrapNode(nameNode("shadowSize",$2)); }
 	| SIZE value { $$ = createSimpleNode("size",$2); }
+	| style_block { $$ = $1; }
 	| TYPE value { $$ = createAttributeNode("type",$2); }
 	| WRAP value { $$ = createSimpleNode("wrap",$2); }
 	;
@@ -374,11 +375,11 @@ leader_block
 	;
 leader_stmts
 	: leader_stmts leader_stmt { $$ = mergeNodes($1,$2); }
-	| leader_stmt { $$ = nameNode("Leader",$1); }
+	| leader_stmt { $$ = nameNode("LabelLeader",$1); }
 	;
 leader_stmt
-	: GRIDSTEP value { $$ = createSimpleNode("gridStep",$2); }
-	| MAXDISTANCE value { $$ = createSimpleNode("maxDistance",$2); }
+	: GRIDSTEP value { $$ = createSimpleNode("gridstep",$2); }
+	| MAXDISTANCE value { $$ = createSimpleNode("maxdistance",$2); }
 	| style_block { $$ = $1; }
 	;
 
@@ -535,13 +536,13 @@ style_stmt
 	| COLOR MS_BINDING { $$ = createSimpleNode("colorAttribute",$2); }
 	| GAP value { $$ = createSimpleNode("gap",$2); }
 	| GEOMTRANSFORM value { $$ = createSimpleNode("geomTransform",$2); }
-	| INITIALGAP value { $$ = createSimpleNode("geomTransform",$2); }
+	| INITIALGAP value { $$ = createSimpleNode("initialGap",$2); }
 	| LINECAP value { $$ = createSimpleNode("lineCap",$2); }
 	| LINEJOIN value { $$ = createSimpleNode("lineJoin",$2); }
 	| LINEJOINMAXSIZE value { $$ = createSimpleNode("lineJoinMaxSize",$2); }
 	| MAXSCALEDENOM value { $$ = createSimpleNode("maxScaleDenom",$2); }
 	| MAXSIZE value { $$ = createSimpleNode("maxSize",$2); }
-	| MAXWIDTH value { $$ = createSimpleNode("maxWitdh",$2); }
+	| MAXWIDTH value { $$ = createSimpleNode("maxWidth",$2); }
 	| MINSCALEDENOM value { $$ = createSimpleNode("minScaleDenom",$2); }
 	| MINSIZE value { $$ = createSimpleNode("minSize",$2); }
 	| MINWIDTH value { $$ = createSimpleNode("minWidth",$2); }
@@ -551,6 +552,7 @@ style_stmt
 	| OUTLINECOLOR MS_BINDING { $$ = createSimpleNode("outlineColorAttribute",$2); }
 	| OUTLINEWIDTH value { $$ = createSimpleNode("outlineWidth",$2); }
 	| PATTERN valueList END { $$ = createSimpleNode("pattern",$2); }
+	| POLAROFFSET value { $$ = createSimpleNode("polarOffset",$2); }
 	| SIZE value { $$ = createSimpleNode("size",$2); }
 	| SYMBOL symbolValue { $$ = wrapNode(nameNode("symbol",$2)); }
 	| WIDTH value { $$ = createSimpleNode("width",$2); }
