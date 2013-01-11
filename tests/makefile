@@ -26,7 +26,7 @@ test6: clean $(foreach file,$(testfiles),test$(file)6)
 
 .PHONY: memtest%6
 memtest%6: tmp/6/orig.%.map
-	valgrind ../bin/map2xml6 < $^
+	valgrind ../bin/map2xml < $^
 	
 .PHONY: memtest6
 memtest6: $(foreach file,$(testfiles),memtest$(file)6)
@@ -53,11 +53,14 @@ test5: $(foreach file,$(testfiles),test$(file)5)
 
 .PHONY: memtest%5
 memtest%5: tmp/5/orig.%.map
-	valgrind ../bin/map2xml5 < $^
+	valgrind ../bin/map2xml < $^
 	
 .PHONY: memtest5
 memtest5: $(foreach file,$(testfiles),memtest$(file)5)
 	#tests complete
+
+.PHONY: memtest
+memtest: memtest5 memtest6
 	
 .PHONY: clean
 clean:
