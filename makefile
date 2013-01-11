@@ -23,4 +23,4 @@ clean:
 
 .PHONEY: test
 test: all
-	make -C tests/ test5 test6
+	make -C tests/

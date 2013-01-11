@@ -3,13 +3,14 @@
 testfiles := mapfile-test layerset symbolset
 .SECONDARY:
 
-all: test5 test6
+all: clean test5 test6
 
 tmp/6/orig.%.map: 6/%.xml
 	xsltproc 6/mapfile.xsl $^ > $@
 
 tmp/6/new.%.xml: tmp/6/orig.%.map
 	../bin/map2xml < $^ > $@
+	xmllint --noout --schema 6/mapfile.xsd $@
 	
 tmp/6/new.%.map: tmp/6/new.%.xml
 	xsltproc 6/mapfile.xsl $^ > $@
@@ -35,7 +36,8 @@ tmp/5/orig.%.map: 5/%.xml
 	xsltproc 5/mapfile.xsl $^ > $@
 
 tmp/5/new.%.xml: tmp/5/orig.%.map
-	../bin/map2xml < $^ > $@
+	../bin/map2xml < $^ > $@	
+	xmllint --noout --schema 5/mapfile.xsd $@
 	
 tmp/5/new.%.map: tmp/5/new.%.xml
 	xsltproc 5/mapfile.xsl $^ > $@
