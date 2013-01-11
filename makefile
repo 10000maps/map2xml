@@ -20,3 +20,7 @@ gen/lexer.yy.c: src/lexer.l
 .PHONEY: clean	
 clean:
 	rm -f -r bin gen
+
+.PHONEY: test
+test: all
+	make -C tests/ test5 test6

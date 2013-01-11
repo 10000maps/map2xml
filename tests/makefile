@@ -3,7 +3,7 @@
 testfiles := mapfile-test layerset symbolset
 .SECONDARY:
 
-all: test6
+all: test5 test6
 
 tmp/6/orig.%.map: 6/%.xml
 	xsltproc 6/mapfile.xsl $^ > $@
@@ -20,7 +20,7 @@ test%6: tmp/6/orig.%.map tmp/6/new.%.map
 	#end of diff
 
 .PHONY: test6	
-test6: dependecy clean $(foreach file,$(testfiles),test$(file)6)
+test6: clean $(foreach file,$(testfiles),test$(file)6)
 	#tests complete
 
 .PHONY: memtest%6
@@ -61,7 +61,3 @@ memtest5: $(foreach file,$(testfiles),memtest$(file)5)
 clean:
 	rm -r -f tmp
 	mkdir -p tmp/5 tmp/6
-	
-.PHONY: dependecy
-dependecy:
-	cd ..;make
