@@ -222,8 +222,25 @@ char *str_replace(char *orig, const char *rep, const char *with) {
     return result;
 }
 
-int main(){
+int main(int argc, char** args){
+	int i;
+	version = 0;
+
+	for(i = 0; i < argc;i++){
+		if(strcmp(args[i],"-v") == 0 && argc > i){
+			version = strdup(args[i+1]);
+			break;
+		}
+	}
+	if( version == 0){
+		version = strdup("5.6.0");
+	}
+
 	yyparse();
+
+	free(version);
+
+	return 0;
 }
 
 XmlNode *createAttributeNode(char const *name, char *value){

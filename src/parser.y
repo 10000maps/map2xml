@@ -389,7 +389,7 @@ map_block
 		XmlNode_addAttribute($2,"xmlns","http://www.mapserver.org/mapserver");
 		XmlNode_addAttribute($2,"xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
 		XmlNode_addAttribute($2,"xsi:schemaLocation","http://www.mapserver.org/mapserver ../mapfile.xsd");
-		XmlNode_addAttribute($2,"version","5.6.0");
+		XmlNode_addAttribute($2,"version",version);
 	}
 	;
 map_stmts

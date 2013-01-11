@@ -3,6 +3,8 @@
 #define XML_NODE_ATTRIBUTE_SIZE 100
 #define XML_NODE_CHILDREN_SIZE 100
 
+char* version;
+
 typedef struct{
 	char *name;
 	char *value;
