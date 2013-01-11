@@ -1,11 +1,23 @@
 
 map2xml
+=======
 
-A tool to convert MapServer Mapfiles into Mapserver XmlMapfiles
+Convert MapServer Mapfiles into Mapserver XmlMapfiles.
 
-Map2xml reads from stdin and output to stdout. 
+
+Usage
+-----
+
 Example usage:
     $ ./map2xml < inputfile.map > outputfile.xml
+
+
+Description
+-----------
+
+Map2xml reads a mapfile from the stdin and prints xmlmapfile to stdout. 
+
+
 
 Copyright 2013 LandEZ Co.
 
