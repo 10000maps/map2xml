@@ -40,7 +40,13 @@ void yyerror(const char *s);
 	TEMPLATEPATTERN TEXT TILEINDEX TILEITEM TITLE TO TOLERANCE TOLERANCEUNITS TRANSPARENCY TRANSPARENT
 	TRANSFORM TYPE UNITS VALIDATION WEB WIDTH WKT WRAP MS_PLUGIN LEADER MS_ISTRING INITIALGAP CLUSTER
 	MAXDISTANCE ANCHORPOINT MS_BINDING MS_REGEX MS_NUMBER TEMPPATH MASK MS_STRING GRIDSTEP
-	MAXOVERLAPANGLE LABELANGLEITEM REGION LABELSIZEITEM MS_IREGEX MS_EXPRESSION POLAROFFSET;
+	MAXOVERLAPANGLE LABELANGLEITEM REGION LABELSIZEITEM MS_IREGEX MS_EXPRESSION POLAROFFSET
+	ANNOTATION AUTO BBOX BEVEL BITMAP BUTT BYTE CC CENTER CHART CIRCLE CL CR CSV DD DEFAULT ELLIPSE 
+	EMBED FALSE FEET FLOAT32 GIANT HATCH HILITE INCHES INT16 KILOMETERS LABELPNT LABELPOLY LARGE LC 
+	LEFT LINE LL LOCAL LR MEDIUM METERS MILES MITER MYSQL NAUTICALMILES NORMAL OFF OGR ON 
+	ONE_TO_MANY ONE_TO_ONE ORACLESPATIAL PC256 PERCENTAGES PIXELS PIXMAP PLUGIN POINT POLYGON 
+	POSTGIS POSTGRESQL QUERY RASTER RGB RGBA RIGHT ROUND SDE SELECTED SIMPLE SMALL SQUARE START TINY 
+	TRIANGLE TRUE TRUETYPE UC UL UNION UR VECTOR VERTICES WFS WMS;
 
 %type <node> mapfile layer_set symbol_set class_block class_stmts class_stmt cluster_block
 	cluster_stmts cluster_stmt feature_block feature_stmts feature_stmt grid_block grid_stmts
@@ -114,6 +120,88 @@ value
 	| MS_BINDING
 	| MS_NUMBER
 	| MS_EXPRESSION
+	| ANNOTATION    { $$ = strdup("ANNOTATION"); }
+	| AUTO          { $$ = strdup("AUTO"); }
+	| BBOX          { $$ = strdup("BBOX"); }
+	| BEVEL         { $$ = strdup("BEVEL"); }
+	| BITMAP        { $$ = strdup("BITMAP"); }
+	| BUTT          { $$ = strdup("BUTT"); }
+	| BYTE          { $$ = strdup("BYTE"); }
+	| CC            { $$ = strdup("CC"); }
+	| CENTER        { $$ = strdup("CENTER"); }
+	| CHART         { $$ = strdup("CHART"); }
+	| CIRCLE        { $$ = strdup("CIRCLE"); }
+	| CL            { $$ = strdup("CL"); }
+	| CR            { $$ = strdup("CR"); }
+	| CSV           { $$ = strdup("CSV"); }
+	| DD            { $$ = strdup("DD"); }
+	| DEFAULT       { $$ = strdup("DEFAULT"); }
+	| ELLIPSE       { $$ = strdup("ELLIPSE"); }
+	| EMBED         { $$ = strdup("EMBED"); }
+	| FALSE         { $$ = strdup("FALSE"); }
+	| FEET          { $$ = strdup("FEET"); }
+	| FLOAT32       { $$ = strdup("FLOAT32"); }
+	| GIANT         { $$ = strdup("GIANT"); }
+	| HATCH         { $$ = strdup("HATCH"); }
+	| HILITE        { $$ = strdup("HILITE"); }
+	| INCHES        { $$ = strdup("INCHES"); }
+	| INT16         { $$ = strdup("INT16"); }
+	| KILOMETERS    { $$ = strdup("KILOMETERS"); }
+	| LABELPNT      { $$ = strdup("LABELPNT"); }
+	| LABELPOLY     { $$ = strdup("LABELPOLY"); }
+	| LARGE         { $$ = strdup("LARGE"); }
+	| LC            { $$ = strdup("LC"); }
+	| LEFT          { $$ = strdup("LEFT"); }
+	| LINE          { $$ = strdup("LINE"); }
+	| LL            { $$ = strdup("LL"); }
+	| LOCAL         { $$ = strdup("LOCAL"); }
+	| LR            { $$ = strdup("LR"); }
+	| MEDIUM        { $$ = strdup("MEDIUM"); }
+	| METERS        { $$ = strdup("METERS"); }
+	| MILES         { $$ = strdup("MILES"); }
+	| MITER         { $$ = strdup("MITER"); }
+	| MYSQL         { $$ = strdup("MYSQL"); }
+	| NAUTICALMILES { $$ = strdup("NAUTICALMILES"); }
+	| NORMAL        { $$ = strdup("NORMAL"); }
+	| OFF           { $$ = strdup("OFF"); }
+	| OGR           { $$ = strdup("OGR"); }
+	| ON            { $$ = strdup("ON"); }
+	| ONE_TO_MANY   { $$ = strdup("ONE-TO-MANY"); }
+	| ONE_TO_ONE    { $$ = strdup("ONE-TO-ONE"); }
+	| ORACLESPATIAL { $$ = strdup("ORACLESPATIAL"); }
+	| PC256         { $$ = strdup("PC256"); }
+	| PERCENTAGES   { $$ = strdup("PERCENTAGES"); }
+	| PIXELS        { $$ = strdup("PIXELS"); }
+	| PIXMAP        { $$ = strdup("PIXMAP"); }
+	| PLUGIN        { $$ = strdup("PLUGIN"); }
+	| POINT         { $$ = strdup("POINT"); }
+	| POLYGON       { $$ = strdup("POLYGON"); }
+	| POSTGIS       { $$ = strdup("POSTGIS"); }
+	| POSTGRESQL    { $$ = strdup("POSTGRESQL"); }
+	| QUERY         { $$ = strdup("QUERY"); }
+	| RASTER        { $$ = strdup("RASTER"); }
+	| RGB           { $$ = strdup("RGB"); }
+	| RGBA          { $$ = strdup("RGBA"); }
+	| RIGHT         { $$ = strdup("RIGHT"); }
+	| ROUND         { $$ = strdup("ROUND"); }
+	| SDE           { $$ = strdup("SDE"); }
+	| SELECTED      { $$ = strdup("SELECTED"); }
+	| SIMPLE        { $$ = strdup("SIMPLE"); }
+	| SMALL         { $$ = strdup("SMALL"); }
+	| SQUARE        { $$ = strdup("SQUARE"); }
+	| START         { $$ = strdup("START"); }
+	| TINY          { $$ = strdup("TINY"); }
+	| TRIANGLE      { $$ = strdup("TRIANGLE"); }
+	| TRUE          { $$ = strdup("TRUE"); }
+	| TRUETYPE      { $$ = strdup("TRUETYPE"); }
+	| UC            { $$ = strdup("UC"); }
+	| UL            { $$ = strdup("UL"); }
+	| UNION         { $$ = strdup("UNION"); }
+	| UR            { $$ = strdup("UR"); }
+	| VECTOR        { $$ = strdup("VECTOR"); }
+	| VERTICES      { $$ = strdup("VERTICES"); }
+	| WFS           { $$ = strdup("WFS"); }
+	| WMS	        { $$ = strdup("WMS"); }
 	;
 
 rgbColor
@@ -444,6 +532,7 @@ outputformat_stmt
 	| EXTENSION value { $$ = createSimpleNode("extension",$2); }
 	| FORMATOPTION value { $$ = createSimpleNode("formatOption",$2); }
 	| IMAGEMODE value { $$ = createSimpleNode("imageMode",$2); }
+	| IMAGEMODE END { $$ = createSimpleNode("imageMode",strdup("FEATURE")); } // FEATURE can't be included in the value enumeration because it caues shift/reduce errors
 	| MIMETYPE value { $$ = createSimpleNode("mimeType",$2); }
 	| NAME value { $$ = createAttributeNode("name",$2); }
 	| TRANSPARENT value { $$ = createSimpleNode("transparent",$2); }
@@ -537,6 +626,7 @@ style_stmt
 	| COLOR MS_BINDING { $$ = createSimpleNode("colorAttribute",$2); }
 	| GAP value { $$ = createSimpleNode("gap",$2); }
 	| GEOMTRANSFORM value { $$ = createSimpleNode("geomTransform",$2); }
+	| GEOMTRANSFORM END { $$ = createSimpleNode("geomTransform",strdup("END")); } // END can't be included in the value enumeration because it caues shift/reduce errors
 	| INITIALGAP value { $$ = createSimpleNode("initialGap",$2); }
 	| LINECAP value { $$ = createSimpleNode("lineCap",$2); }
 	| LINEJOIN value { $$ = createSimpleNode("lineJoin",$2); }
@@ -618,6 +708,8 @@ metadata_block
 validation_block
 	: VALIDATION items END { $$ = wrapNode(nameNode("Validation",$2)); } ;
 
+	
+	
 %%
 
 void yyerror(const char *s) {

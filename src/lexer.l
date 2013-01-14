@@ -211,6 +211,89 @@ width                     { setToken(WIDTH); }
 wkt                       { setToken(WKT); }
 wrap                      { setToken(WRAP); }
 
+
+annotation               { setToken(ANNOTATION); }
+auto                     { setToken(AUTO); }
+bbox                     { setToken(BBOX); }
+bevel                    { setToken(BEVEL); }
+bitmap                   { setToken(BITMAP); }
+butt                     { setToken(BUTT); }
+byte                     { setToken(BYTE); }
+cc                       { setToken(CC); }
+center                   { setToken(CENTER); }
+chart                    { setToken(CHART); }
+circle                   { setToken(CIRCLE); }
+cl                       { setToken(CL); }
+cr                       { setToken(CR); }
+csv                      { setToken(CSV); }
+dd                       { setToken(DD); }
+default                  { setToken(DEFAULT); }
+ellipse                  { setToken(ELLIPSE); }
+embed                    { setToken(EMBED); }
+false                    { setToken(FALSE); }
+feet                     { setToken(FEET); }
+float32                  { setToken(FLOAT32); }
+giant                    { setToken(GIANT); }
+hatch                    { setToken(HATCH); }
+hilite                   { setToken(HILITE); }
+inches                   { setToken(INCHES); }
+int16                    { setToken(INT16); }
+kilometers               { setToken(KILOMETERS); }
+labelpnt                 { setToken(LABELPNT); }
+labelpoly                { setToken(LABELPOLY); }
+large                    { setToken(LARGE); }
+lc                       { setToken(LC); }
+left                     { setToken(LEFT); }
+line                     { setToken(LINE); }
+ll                       { setToken(LL); }
+local                    { setToken(LOCAL); }
+lr                       { setToken(LR); }
+medium                   { setToken(MEDIUM); }
+meters                   { setToken(METERS); }
+miles                    { setToken(MILES); }
+miter                    { setToken(MITER); }
+mysql                    { setToken(MYSQL); }
+nauticalmiles            { setToken(NAUTICALMILES); }
+normal                   { setToken(NORMAL); }
+off                      { setToken(OFF); }
+ogr                      { setToken(OGR); }
+on                       { setToken(ON); }
+one\-to\-many            { setToken(ONE_TO_MANY); }
+one\-to\-one             { setToken(ONE_TO_ONE); }
+oraclespatial            { setToken(ORACLESPATIAL); }
+pc256                    { setToken(PC256); }
+percentages              { setToken(PERCENTAGES); }
+pixels                   { setToken(PIXELS); }
+pixmap                   { setToken(PIXMAP); }
+point                    { setToken(POINT); }
+polygon                  { setToken(POLYGON); }
+postgis                  { setToken(POSTGIS); }
+postgresql               { setToken(POSTGRESQL); }
+query                    { setToken(QUERY); }
+raster                   { setToken(RASTER); }
+rgb                      { setToken(RGB); }
+rgba                     { setToken(RGBA); }
+right                    { setToken(RIGHT); }
+round                    { setToken(ROUND); }
+sde                      { setToken(SDE); }
+selected                 { setToken(SELECTED); }
+simple                   { setToken(SIMPLE); }
+small                    { setToken(SMALL); }
+square                   { setToken(SQUARE); }
+start                    { setToken(START); }
+tiny                     { setToken(TINY); }
+triangle                 { setToken(TRIANGLE); }
+true                     { setToken(TRUE); }
+truetype                 { setToken(TRUETYPE); }
+uc                       { setToken(UC); }
+ul                       { setToken(UL); }
+union                    { setToken(UNION); }
+ur                       { setToken(UR); }
+vector                   { setToken(VECTOR); }
+vertices                 { setToken(VERTICES); }
+wfs                      { setToken(WFS); }
+wms                      { setToken(WMS); }
+
 \[.*\]                    { setTokenAndString(MS_BINDING); }
 -?[0-9]+|-?[0-9]+\.[0-9]*|-?\.[0-9]*|-?[0-9]+[eE][+-]?[0-9]+|-?[0-9]+\.[0-9]*[eE][+-]?[0-9]+|-?\.[0-9]*[eE][+-]?[0-9]+ {
                             setTokenAndString(MS_NUMBER); }
@@ -227,7 +310,6 @@ wrap                      { setToken(WRAP); }
 	yylval.str = stripped;
 	return MS_STRING;
 }
-
 \(                        { BEGIN(PAREN_EXP); yymore(); open_parens = 1; }
 <PAREN_EXP>[^\)\(]        { yymore(); }
 <PAREN_EXP>\(             { yymore(); open_parens++; }
