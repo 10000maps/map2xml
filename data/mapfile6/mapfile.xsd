@@ -124,33 +124,33 @@
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="expressionType">
-          <xs:simpleContent>
-	    <xs:extension base="xs:string">
-	      <xs:attribute name="type" default="CONSTANT">
-                <xs:simpleType>
-	          <xs:restriction base="xs:string">
-	            <xs:enumeration value="CONSTANT"/>
-	            <xs:enumeration value="REGEX"/>
-                    <xs:enumeration value="MSEXPR"/>
-		  </xs:restriction>
-                </xs:simpleType>
-              </xs:attribute>
-	    </xs:extension>
-	  </xs:simpleContent>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" default="CONSTANT">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="CONSTANT"/>
+							<xs:enumeration value="REGEX"/>
+							<xs:enumeration value="MSEXPR"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
 	</xs:complexType>
 	<xs:complexType name="symbolType">
-          <xs:simpleContent>
-	    <xs:extension base="xs:string">
-	      <xs:attribute name="type" default="ID">
-                <xs:simpleType>
-	          <xs:restriction base="xs:string">
-	            <xs:enumeration value="ID"/>
-                    <xs:enumeration value="NAME"/>
-		  </xs:restriction>
-                </xs:simpleType>
-              </xs:attribute>
-	    </xs:extension>
-	  </xs:simpleContent>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" default="ID">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ID"/>
+							<xs:enumeration value="NAME"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
 	</xs:complexType>
 	<!-- Definition of Mapfile elements -->
 	<!-- QUERYMAP Definition -->
@@ -358,14 +358,14 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-    <!-- LABELLEADER Definition -->
-    <xs:complexType name="LabelLeader">
-        <xs:sequence>
-            <xs:element name="gridstep" type="xs:positiveInteger" minOccurs="0"/>
-            <xs:element name="maxdistance" type="xs:positiveInteger" minOccurs="0"/>
-            <xs:element name="Style"  type="ms:Style" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
+	<!-- LABELLEADER Definition -->
+	<xs:complexType name="LabelLeader">
+		<xs:sequence>
+			<xs:element name="gridstep" type="xs:positiveInteger" minOccurs="0"/>
+			<xs:element name="maxdistance" type="xs:positiveInteger" minOccurs="0"/>
+			<xs:element name="Style"  type="ms:Style" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
 	<!-- STYLE Definition -->
 	<xs:complexType name="Style">
 		<xs:sequence>
@@ -399,7 +399,7 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-            <xs:element name="initialGap" type="xs:double" minOccurs="0"/>
+			<xs:element name="initialGap" type="xs:double" minOccurs="0"/>
 			<xs:element name="lineCap" default="BUTT" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -407,7 +407,7 @@
 						<xs:enumeration value="ROUND"/>
 						<xs:enumeration value="SQUARE"/>
 						<xs:enumeration value="TRIANGLE"/>
-				                <xs:enumeration value="SVG"/>
+						<xs:enumeration value="SVG"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
@@ -436,11 +436,11 @@
 					<xs:list itemType="xs:float"/>
 				</xs:simpleType>
 			</xs:element>
-            <xs:element name="polarOffset" minOccurs="0">
-                <xs:simpleType>
-                    <xs:union memberTypes="xs:positiveInteger ms:attributeType xs:positiveInteger ms:attributeType"/>
-                </xs:simpleType>
-            </xs:element>
+			<xs:element name="polarOffset" minOccurs="0">
+				<xs:simpleType>
+					<xs:union memberTypes="xs:positiveInteger ms:attributeType xs:positiveInteger ms:attributeType"/>
+				</xs:simpleType>
+			</xs:element>
 			<xs:element name="size" default="1" minOccurs="0">
 				<xs:simpleType>
 					<xs:union memberTypes="xs:positiveInteger ms:attributeType"/>
@@ -464,7 +464,7 @@
 			<xs:element name="group" type="xs:string" minOccurs="0"/>
 			<xs:element name="keyImage" type="xs:string" minOccurs="0"/>
 			<xs:element name="Label" type="ms:Label" minOccurs="0"/>
-            <xs:element name="LabelLeader" type="ms:LabelLeader" minOccurs="0"/>
+			<xs:element name="LabelLeader" type="ms:LabelLeader" minOccurs="0"/>
 			<xs:element name="maxScaleDenom" type="xs:double" minOccurs="0"/>
 			<xs:element name="maxSize" type="xs:integer" default="50" minOccurs="0"/>
 			<xs:element name="minScaleDenom" type="xs:double" minOccurs="0"/>
@@ -485,7 +485,7 @@
 	<!-- SYMBOL Definition -->
 	<xs:complexType name="Symbol">
 		<xs:sequence>
-            <xs:element name="anchorPoint" type="ms:pointType" minOccurs="0"/>
+			<xs:element name="anchorPoint" type="ms:pointType" minOccurs="0"/>
 			<xs:element name="antialias" type="ms:booleanEnum" minOccurs="0"/>
 			<xs:element name="character" type="xs:string" minOccurs="0"/>
 			<xs:element name="filled" type="ms:booleanEnum" minOccurs="0"/>
@@ -500,7 +500,7 @@
 			</xs:element>
 			<xs:element name="transparent" type="xs:integer" minOccurs="0"/>
 		</xs:sequence>
-	        <xs:attribute name="name" type="xs:string"/>
+		<xs:attribute name="name" type="xs:string"/>
 		<xs:attribute name="type" use="required">
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -594,7 +594,7 @@
 		</xs:sequence>
 		<xs:attribute name="status" type="ms:stateEnum" default="OFF"/>
 	</xs:complexType>
-        <!-- CLUSTER Definition -->
+	<!-- CLUSTER Definition -->
 	<xs:complexType name="Cluster">
 		<xs:sequence>
 			<xs:element name="buffer" type="xs:float" minOccurs="0"/>

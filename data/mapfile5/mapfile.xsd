@@ -124,33 +124,33 @@
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="expressionType">
-          <xs:simpleContent>
-	    <xs:extension base="xs:string">
-	      <xs:attribute name="type" default="CONSTANT">
-                <xs:simpleType>
-	          <xs:restriction base="xs:string">
-	            <xs:enumeration value="CONSTANT"/>
-	            <xs:enumeration value="REGEX"/>
-                    <xs:enumeration value="MSEXPR"/>
-		  </xs:restriction>
-                </xs:simpleType>
-              </xs:attribute>
-	    </xs:extension>
-	  </xs:simpleContent>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" default="CONSTANT">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="CONSTANT"/>
+							<xs:enumeration value="REGEX"/>
+							<xs:enumeration value="MSEXPR"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
 	</xs:complexType>
 	<xs:complexType name="symbolType">
-          <xs:simpleContent>
-	    <xs:extension base="xs:string">
-	      <xs:attribute name="type" default="ID">
-                <xs:simpleType>
-	          <xs:restriction base="xs:string">
-	            <xs:enumeration value="ID"/>
-                    <xs:enumeration value="NAME"/>
-		  </xs:restriction>
-                </xs:simpleType>
-              </xs:attribute>
-	    </xs:extension>
-	  </xs:simpleContent>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type" default="ID">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ID"/>
+							<xs:enumeration value="NAME"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
 	</xs:complexType>
 	<!-- Definition of Mapfile elements -->
 	<!-- QUERYMAP Definition -->
