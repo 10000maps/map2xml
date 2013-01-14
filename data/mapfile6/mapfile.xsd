@@ -260,7 +260,7 @@
 	<!-- LABEL Definition -->
 	<xs:complexType name="Label">
 		<xs:sequence>
-			<xs:element name="align" type="ms:alignEnum"/>
+			<xs:element name="align" type="ms:alignEnum" minOccurs="0"/>
 			<xs:element name="angle" minOccurs="0">
 				<xs:simpleType id="labelAngleType">
 					<xs:union memberTypes="ms:angleType ms:attributeType">
@@ -449,7 +449,7 @@
 			<xs:element name="symbol" type="ms:symbolType" default="1" minOccurs="0"/>
 			<xs:element name="width" default="1" minOccurs="0">
 				<xs:simpleType>
-					<xs:union memberTypes="xs:positiveInteger ms:attributeType"/>
+					<xs:union memberTypes="xs:double ms:attributeType"/>
 				</xs:simpleType>
 			</xs:element>
 		</xs:sequence>
@@ -469,7 +469,7 @@
 			<xs:element name="maxSize" type="xs:integer" default="50" minOccurs="0"/>
 			<xs:element name="minScaleDenom" type="xs:double" minOccurs="0"/>
 			<xs:element name="minSize" type="xs:integer" default="0" minOccurs="0"/>
-			<xs:choice>
+			<xs:choice minOccurs="0">
 				<xs:element name="outlineColor" type="ms:rgbColorType"/>
 				<xs:element name="outlineColorAttribute" type="ms:attributeType"/>
 			</xs:choice>
@@ -791,7 +791,7 @@
 				<xs:element name="QueryMap" type="ms:QueryMap" minOccurs="0"/>
 				<xs:element name="Reference" type="ms:Reference" minOccurs="0"/>
 				<xs:element name="resolution" type="xs:positiveInteger" default="72" minOccurs="0"/>
-				<xs:element name="ScaleBar" type="ms:ScaleBar"/>
+				<xs:element name="ScaleBar" type="ms:ScaleBar" minOccurs="0"/>
 				<xs:element name="scaleDenom" type="xs:double" minOccurs="0"/>
 				<xs:element name="shapePath" type="xs:string" minOccurs="0"/>
 				<xs:element name="size" type="ms:sizeType" minOccurs="0"/>
