@@ -2,6 +2,7 @@
 
 int lineNumber = 0;
 #include <string.h>
+#include <stdlib.h>
 #include "../gen/parser.tab.h"
 
 /* *** if this is changed***
@@ -11,16 +12,19 @@ remember to also update the function to return a string */
 #define setTokenAndString(token) debugPrint(yytext);yylval.str = strdup(yytext);return(token)
 
 YYSTYPE yylval;
+int open_parens = 0;
+
 
 %}
 
+%x PAREN_EXP
 
 
 %%
 [ \t\r]+                  // ignore whitespace
 #.*                       // ignore comments
 \n                        { lineNumber++; }
-                          
+
 align                     { setToken(ALIGN); }
 alphacolor                { setToken(ALPHACOLOR); }
 anchorpoint               { setToken(ANCHORPOINT); }
@@ -211,7 +215,6 @@ wrap                      { setToken(WRAP); }
 -?[0-9]+|-?[0-9]+\.[0-9]*|-?\.[0-9]*|-?[0-9]+[eE][+-]?[0-9]+|-?[0-9]+\.[0-9]*[eE][+-]?[0-9]+|-?\.[0-9]*[eE][+-]?[0-9]+ {
                             setTokenAndString(MS_NUMBER); }
 \/[^\/]*\/i?              { setTokenAndString(MS_REGEX); }
-\(.*\)                    { setTokenAndString(MS_EXPRESSION); }
 [a-z/\.][a-z0-9/\._\-\=]* { setTokenAndString(MS_STRING); }
 (\"(\\.|[^"])*\"|\'(\\.|[^'])*\')i? {
 	int len = strlen(yytext);
@@ -224,6 +227,19 @@ wrap                      { setToken(WRAP); }
 	yylval.str = stripped;
 	return MS_STRING;
 }
+
+\(                        { BEGIN(PAREN_EXP); yymore(); open_parens = 1; }
+<PAREN_EXP>[^\)\(]        { yymore(); }
+<PAREN_EXP>\(             { yymore(); open_parens++; }
+<PAREN_EXP>\)             {
+	open_parens--;
+	yymore();
+	if(open_parens < 1){
+		BEGIN(0);
+		setTokenAndString(MS_EXPRESSION);
+	}
+}
+
 %%
 
 int yywrap(){}
