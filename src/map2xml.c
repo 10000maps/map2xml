@@ -103,12 +103,13 @@ XmlAttribute* XmlAttribute_new(const char *name, const char *value){
 void XmlNode_addChild(XmlNode *this, XmlNode *child){
 
 	if(child->name == 0){
-		fprintf(stderr, "Cannot add nameless children");
+		fprintf(stderr, "map2xml error: Cannot add a child node that doesn't have a tag name.\n");
+		XmlNode_print(child);
 		exit(1);
 	}
 
 	if(this->childrenCount >= XML_NODE_CHILDREN_SIZE-1){
-		fprintf(stderr, "Children Limit exceeded!\n");
+		fprintf(stderr, "map2xml error: Children Limit exceeded!\n");
 		exit(1);
 	};
 	
