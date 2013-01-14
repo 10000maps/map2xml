@@ -6,14 +6,14 @@ testfiles := mapfile-test layerset symbolset
 all: clean test5 test6
 
 tmp/6/orig.%.map: 6/%.xml
-	xsltproc 6/mapfile.xsl $^ > $@
+	xsltproc ../data/mapfile6/mapfile.xsl $^ > $@
 
 tmp/6/new.%.xml: tmp/6/orig.%.map
 	../bin/map2xml < $^ > $@
-	xmllint --noout --schema 6/mapfile.xsd $@
+	xmllint --noout --schema ../data/mapfile6/mapfile.xsd $@
 	
 tmp/6/new.%.map: tmp/6/new.%.xml
-	xsltproc 6/mapfile.xsl $^ > $@
+	xsltproc ../data/mapfile6/mapfile.xsl $^ > $@
 
 .PHONY: test%6
 test%6: tmp/6/orig.%.map tmp/6/new.%.map
@@ -33,14 +33,14 @@ memtest6: $(foreach file,$(testfiles),memtest$(file)6)
 	#tests complete
 
 tmp/5/orig.%.map: 5/%.xml
-	xsltproc 5/mapfile.xsl $^ > $@
+	xsltproc ../data/mapfile5/mapfile.xsl $^ > $@
 
 tmp/5/new.%.xml: tmp/5/orig.%.map
 	../bin/map2xml < $^ > $@	
-	xmllint --noout --schema 5/mapfile.xsd $@
+	xmllint --noout --schema ../data/mapfile5/mapfile.xsd $@
 	
 tmp/5/new.%.map: tmp/5/new.%.xml
-	xsltproc 5/mapfile.xsl $^ > $@
+	xsltproc ../data/mapfile5/mapfile.xsl $^ > $@
 
 .PHONY: test%5
 test%5: tmp/5/orig.%.map tmp/5/new.%.map
