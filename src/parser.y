@@ -82,7 +82,7 @@ rootelement
 	;
 layer_set
 	: layer_set layer_block {
-		XmlNode_addChild($1,$2);
+		if($2 != 0)XmlNode_merge($1,$2);
 		$$ = $1;
 	}
 	| layer_block {
