@@ -113,6 +113,7 @@ value
 	| MS_REGEX
 	| MS_BINDING
 	| MS_NUMBER
+	| MS_EXPRESSION
 	;
 
 rgbColor
