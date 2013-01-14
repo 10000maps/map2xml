@@ -233,6 +233,7 @@ valueList
 
 class_block
 	: CLASS class_stmts END { $$ = wrapNode($2); }
+	| CLASS END { $$ = 0; }
 	;
 class_stmts
 	: class_stmts class_stmt { $$ = mergeNodes($1,$2); }
@@ -265,6 +266,7 @@ class_stmt
 
 cluster_block
 	: CLUSTER cluster_stmts END { $$ = wrapNode($2); }
+	| CLUSTER END { $$ = 0; }
 	;
 cluster_stmts
 	: cluster_stmts cluster_stmt { $$ = mergeNodes($1,$2); }
@@ -280,6 +282,7 @@ cluster_stmt
 
 feature_block
 	: FEATURE feature_stmts END { $$ = wrapNode($2); }
+	| FEATURE END { $$ = 0; }
 	;
 feature_stmts
 	: feature_stmts feature_stmt { $$ = mergeNodes($1,$2); }
@@ -294,6 +297,7 @@ feature_stmt
 
 grid_block
 	: GRID grid_stmts END { $$ = wrapNode($2); }
+	| GRID END { $$ = 0; }
 	;
 grid_stmts
 	: grid_stmts grid_stmt { $$ = mergeNodes($1,$2); }
@@ -312,6 +316,7 @@ grid_stmt
 
 join_block
 	: JOIN join_stmts END { $$ = wrapNode($2); }
+	| JOIN END { $$ = 0; }
 	;
 join_stmts
 	: join_stmts join_stmt { $$ = mergeNodes($1,$2); }
@@ -333,6 +338,7 @@ join_stmt
 
 label_block
 	: LABEL label_stmts END { $$ = wrapNode($2); }
+	| LABEL END { $$ = 0; }
 	;
 label_stmts
 	: label_stmts label_stmt { $$ = mergeNodes($1,$2); }
@@ -377,6 +383,7 @@ label_stmt
 
 legend_block
 	: LEGEND legend_stmts END { $$ = wrapNode($2); }
+	| LEGEND END { $$ = 0; }
 	;
 legend_stmts
 	: legend_stmts legend_stmt { $$ = mergeNodes($1,$2); }
@@ -396,6 +403,7 @@ legend_stmt
 
 layer_block
 	: LAYER layer_stmts END { $$ = wrapNode($2); }
+	| LAYER END { $$ = 0; }
 	;
 
 layer_stmts
@@ -461,6 +469,7 @@ layer_stmt
 
 leader_block
 	: LEADER leader_stmts END { $$ = wrapNode($2); }
+	| LEADER END { $$ = 0; }
 	;
 leader_stmts
 	: leader_stmts leader_stmt { $$ = mergeNodes($1,$2); }
@@ -480,6 +489,7 @@ map_block
 		XmlNode_addAttribute($2,"xsi:schemaLocation","http://www.mapserver.org/mapserver ../mapfile.xsd");
 		XmlNode_addAttribute($2,"version",version);
 	}
+	| MAP END { $$ = 0; }
 	;
 map_stmts
 	: map_stmts map_stmt { $$ = mergeNodes($1,$2); }
@@ -522,6 +532,7 @@ map_stmt
 
 outputformat_block
 	: OUTPUTFORMAT outputformat_stmts END { $$ = wrapNode($2); }
+	| OUTPUTFORMAT END { $$ = 0; }
 	;
 outputformat_stmts
 	: outputformat_stmts outputformat_stmt { $$ = mergeNodes($1,$2); }
@@ -540,6 +551,7 @@ outputformat_stmt
 
 points_block
 	: POINTS point_stmts END { $$ = wrapNode($2); }
+	| POINTS END { $$ = 0; }
 	;
 point_stmts
 	: point_stmts point_stmt { $$ = mergeNodes($1,$2); }
@@ -551,9 +563,12 @@ point_stmt
 
 projection_block
 	: PROJECTION valueList END { $$ = createSimpleNode("projection",$2); }
+	| PROJECTION END { $$ = 0; }
+	;
 
 querymap_block
 	: QUERYMAP querymap_stmts END { $$ = wrapNode($2); }
+	| QUERYMAP END { $$ = 0; }
 	;
 querymap_stmts
 	: querymap_stmts querymap_stmt { $$ = mergeNodes($1,$2); }
@@ -568,6 +583,7 @@ querymap_stmt
 
 reference_block
 	: REFERENCE reference_stmts END { $$ = wrapNode($2); }
+	| REFERENCE END { $$ = 0; }
 	;
 reference_stmts
 	: reference_stmts reference_stmt { $$ = mergeNodes($1,$2); }
@@ -589,6 +605,7 @@ reference_stmt
 
 scalebar_block
 	: SCALEBAR scalebar_stmts END { $$ = wrapNode($2); }
+	| SCALEBAR END { $$ = 0; }
 	;
 scalebar_stmts
 	: scalebar_stmts scalebar_stmt { $$ = mergeNodes($1,$2); }
@@ -613,6 +630,7 @@ scalebar_stmt
 
 style_block
 	: STYLE style_stmts END { $$ = wrapNode($2); }
+	| STYLE END { $$ = 0; }
 	;
 style_stmts
 	: style_stmts style_stmt { $$ = mergeNodes($1,$2); }
@@ -651,6 +669,7 @@ style_stmt
 
 symbol_block
 	: SYMBOL symbol_stmts END { $$ = wrapNode($2); }
+	| SYMBOL END { $$ = 0; }
 	;
 symbol_stmts
 	: symbol_stmts symbol_stmt { $$ = mergeNodes($1,$2); }
@@ -676,6 +695,7 @@ symbol_stmt
 
 web_block
 	: WEB web_stmts END { $$ = wrapNode($2); }
+	| WEB END { $$ = 0; }
 	;
 web_stmts
 	: web_stmts web_stmt { $$ = mergeNodes($1,$2); }
@@ -704,9 +724,13 @@ web_stmt
 	| validation_block { $$ = $1; }
 	;
 metadata_block
-	: METADATA items END { $$ = wrapNode(nameNode("Metadata",$2)); } ;
+	: METADATA items END { $$ = wrapNode(nameNode("Metadata",$2)); }
+	| METADATA END { $$ = 0; }
+	;
 validation_block
-	: VALIDATION items END { $$ = wrapNode(nameNode("Validation",$2)); } ;
+	: VALIDATION items END { $$ = wrapNode(nameNode("Validation",$2)); }
+	| VALIDATION END { $$ = 0; }
+	;
 
 	
 	
