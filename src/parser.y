@@ -69,9 +69,7 @@ mapfile
 		XmlNode_print($1);
 		XmlNode_destory($1);
 	}
-	| {
-		printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); // handle empty mapfiles
-	}
+	| 
 	;
 
 rootelement
