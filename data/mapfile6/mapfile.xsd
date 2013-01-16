@@ -61,8 +61,8 @@
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="sizeType">
-		<xs:attribute name="x" type="xs:positiveInteger"/>
-		<xs:attribute name="y" type="xs:positiveInteger"/>
+		<xs:attribute name="x" type="xs:nonNegativeInteger"/>
+		<xs:attribute name="y" type="xs:nonNegativeInteger"/>
 	</xs:complexType>
 	<xs:complexType name="pointType">
 		<xs:attribute name="x" type="xs:float"/>
@@ -443,7 +443,7 @@
 			</xs:element>
 			<xs:element name="size" default="1" minOccurs="0">
 				<xs:simpleType>
-					<xs:union memberTypes="xs:positiveInteger ms:attributeType"/>
+					<xs:union memberTypes="xs:double ms:attributeType"/>
 				</xs:simpleType>
 			</xs:element>
 			<xs:element name="symbol" type="ms:symbolType" default="1" minOccurs="0"/>
